@@ -266,7 +266,7 @@
 
 	
 		// add a torus knot
-		var geometry	= new THREE.CubeGeometry(30,30,30);
+		var geometry	= new THREE.CubeGeometry(300,300,300);
 		var material	= new THREE.MeshNormalMaterial({
 			transparent : true,
 			opacity: 0.5,
@@ -276,8 +276,8 @@
 		//mesh.position.z	= geometry.parameters.height/2
 		//the position of the XYZ using NFT is NOT the center of the marker, is the left-bottom corner
 		mesh.position.z = 3.0;
-		mesh.position.x = 100;
-		mesh.position.y = 100;
+		mesh.position.x = 150;
+		mesh.position.y = 150;
 		scene.add( mesh );
 	
 		var geometry	= new THREE.TorusKnotGeometry(0.3,0.1,64,16);
@@ -335,15 +335,17 @@
 			}
 			
 			if (arToolkitContext._arMarkersControls[0].object3d.visible){
-			  camera.position.x = averaging.x.reduce((a,b)=>{return a+b})/averaging.max + 2 + 100;
-			  camera.position.y = averaging.y.reduce((a,b)=>{return a+b})/averaging.max + 100;
+			  camera.position.x = averaging.x.reduce((a,b)=>{return a+b})/averaging.max + 2 + 150;
+			  camera.position.y = averaging.y.reduce((a,b)=>{return a+b})/averaging.max + 150;
 			  camera.position.z = averaging.z.reduce((a,b)=>{return a+b})/averaging.max;
-			  console.log("camera position after: ", camera.position);			  
+			  //console.log("camera position after: ", camera.position);
+			  document.getElementById('p2').innerHTML = "cam-x: "+String(camera.position.x).slice(0,4) + "; ave-y: "+String(camera.position.y).slice(0,4) + "; ave-z: "+String(camera.position.z).slice(0,4)+ " - (sample size: "+averaging.max+")"
+
 			}
 
 			
 			
-			document.getElementById('p2').innerHTML = "ave-x: "+String(averaging.x.reduce((a,b)=>{return a+b})/averaging.max).slice(0,4) + "; ave-y: "+String(averaging.y.reduce((a,b)=>{return a+b})/averaging.max).slice(0,4) + "; ave-z: "+String(averaging.z.reduce((a,b)=>{return a+b})/averaging.max).slice(0,4)+ " - (sample size: "+averaging.max+")"
+			//document.getElementById('p2').innerHTML = "ave-x: "+String(averaging.x.reduce((a,b)=>{return a+b})/averaging.max).slice(0,4) + "; ave-y: "+String(averaging.y.reduce((a,b)=>{return a+b})/averaging.max).slice(0,4) + "; ave-z: "+String(averaging.z.reduce((a,b)=>{return a+b})/averaging.max).slice(0,4)+ " - (sample size: "+averaging.max+")"
 
 			//console.log(document.getElementsByTagName('video').hidden = true);
 			//document.getElementById('arjs').hidden = true;
