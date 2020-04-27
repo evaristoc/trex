@@ -19,7 +19,62 @@
           window.location.hostname != "[::1]") {
         window.location = window.location.href.replace('http:', 'https:');        
       }
-    </script>    
+    </script>
+	
+	    <!-- import the webpage's javascript files -->
+    <script src="https://aframe.io/releases/1.0.3/aframe.min.js"></script>
+    <script src="https://unpkg.com/aframe-extras@3.3.0/dist/aframe-extras.min.js"></script>
+    <script src="https://unpkg.com/aframe-environment-component@1.1.0/dist/aframe-environment-component.min.js"></script>
+
+    <script>
+      // Define a few custom components useful for AR mode. While these are somewhat reusable,
+      // I recommend checking if there are officially supported alternatives before copying
+      // these into new projects.
+    
+      // See also https://github.com/aframevr/aframe/pull/4356
+      AFRAME.registerComponent('hide-in-ar-mode', {
+        // Set this object invisible while in AR mode.
+        init: function () {
+          this.el.sceneEl.addEventListener('enter-vr', (ev) => {
+            this.wasVisible = this.el.getAttribute('visible');
+            if (this.el.sceneEl.is('ar-mode')) {
+              this.el.setAttribute('visible', false);
+            }
+          });
+          this.el.sceneEl.addEventListener('exit-vr', (ev) => {
+            if (this.wasVisible) this.el.setAttribute('visible', true);
+          });
+        }
+      });
+      
+      AFRAME.registerComponent('ar-shadows', {
+        // Swap an object's material to a transparent shadows-only material while
+        // in AR mode. Intended for use with a ground plane. The object is also
+        // set visible while in AR mode, this is useful if it's hidden in other
+        // modes due to them using a 3D environment.
+        schema: {
+          opacity: {default: 0.3}
+        },
+        init: function () {
+          this.el.sceneEl.addEventListener('enter-vr', (ev) => {
+            this.wasVisible = this.el.getAttribute('visible');
+            if (this.el.sceneEl.is('ar-mode')) {
+              this.savedMaterial = this.el.object3D.children[0].material;
+              this.el.object3D.children[0].material = new THREE.ShadowMaterial();
+              this.el.object3D.children[0].material.opacity = this.data.opacity;
+              this.el.setAttribute('visible', true);
+            }
+          });
+          this.el.sceneEl.addEventListener('exit-vr', (ev) => {
+            if (this.savedMaterial) {
+              this.el.object3D.children[0].material = this.savedMaterial;
+              this.savedMaterial = null;
+            }
+            if (!this.wasVisible) this.el.setAttribute('visible', false);
+          });
+        }
+      });    
+  </script>
 
   <style>
 	  .arjs-loader {
@@ -91,7 +146,86 @@
         <div class="arjs-loader-spinner"></div>
     </div>-->
 
-	<button id="btn" style="z-index:200; position:absolute;bottom:20px;left:100px;"></button>
+	<div id="ascene">
+		<a-scene>
+		  <a-assets timeout="30000">
+			<!-- Model source: https://sketchfab.com/3d-models/spinosaurus-2135501583704537907645bf723685e7
+				 Model author: https://sketchfab.com/VapTor
+				 Model license: CC Attribution -->
+			<a-asset-item id="spinosaurus" src="https://cdn.glitch.com/324a5290-5aa7-4efc-92d6-ae0736433b12%2Fspinosaurus.glb" response-type="arraybuffer"></a-asset-item>
+		  </a-assets>
+		  
+		  <!--<a-camera position="-3.7 -8 .22"></a-camera>-->
+		  <!--<a-camera position="-.7 1.2 1"></a-camera>-->
+		  <a-camera position="0.0 0.0 0.0"></a-camera>
+		  
+		  <!-- Environment for 2D and VR viewing. It's auto-hidden in AR mode. -->
+		  <a-entity environment="preset: forest; lighting: none; shadow: none; lightPosition: 0 2.15 0"
+					hide-in-ar-mode></a-entity>
+		  
+		  <!--<a-box id="testbox" color="tomato" depth="1" height="1" width="1" position="-1 0 -3"></a-box>-->
+		  <!-- apparently: position of the image is x == x of control; y == z of control; z == -y of control -->
+		  <!--<a-box id="testbox" color="tomato" depth="1" height="1" width="1" position="2.7 .8 -.3" animation-mixer></a-box>-->
+		  <!-- It seems to be a change in coordinates:
+				-- the center is my camera (0,0,0)
+				-- therefore, x == 0 (or a value that would center the image to the marker)
+				-- y of WebAR == -z of AR.js
+				-- z of WebAR == -y/10 of AR.js
+		  -->
+		  <a-entity id="dino" scale=".1 .1 .1">
+			<a-entity position="0 1.15 0" rotation="0 55 0"
+					  gltf-model="#spinosaurus"
+					  animation-mixer
+					  shadow="cast: true; receive: false">
+			</a-entity>
+			<a-box id="testbox" color="tomato" depth="1" height="1" width="1" position="0 0 0" animation-mixer>
+			</a-box>
+		  </a-entity>
+		  <a-entity light="type: ambient; intensity: 0.5;"></a-entity>
+		  <a-light type="directional"
+			 light="castShadow: true;
+					shadowMapHeight: 1024;
+					shadowMapWidth: 1024;
+					shadowCameraLeft: -7;
+					shadowCameraRight: 5;
+					shadowCameraBottom: -5;
+					shadowCameraTop: 5;"
+			 id="light"
+			 target="testbox"
+			 position="-5 3 1.5"></a-light>
+		 </a-scene>
+		<div id="text">
+		  <h1>A-Frame Spinosaurus for VR/AR</h1>
+		
+		  <p>
+			Model: <a href="https://sketchfab.com/3d-models/spinosaurus-2135501583704537907645bf723685e7">Spinosaurus</a> by 
+			<a href="https://sketchfab.com/VapTor">Vaptor-Studio</a>.
+		  </p>
+		  <p>
+			Size: <button id="btn_full">Full</button>
+			<button id="btn_half">1/2</button>
+			<button id="btn_quarter">1/4</button>
+		  </p>
+		  
+		  <p>
+			To try WebXR's experimental AR mode, use an <a href="https://developers.google.com/ar/discover/supported-devices">ARCore-compatible</a> 
+			Android phone with Chrome v79+ and enable <b>WebXR AR Module</b> in chrome://flags.
+		  </p>
+		  
+		  <p>
+			Powered by <a href="https://aframe.io/blog/aframe-v1.0.0/">A-Frame v1.0.0</a>.
+		  </p>
+		</div>
+	</div>
+    <script>
+      function setSize(scale) {
+        document.getElementById('dino').setAttribute('scale', {x: scale, y: scale, z: scale});
+      }
+      document.getElementById('btn_full').onclick = setSize.bind(this, 1);
+      document.getElementById('btn_half').onclick = setSize.bind(this, 0.5);
+      document.getElementById('btn_quarter').onclick = setSize.bind(this, 0.25);
+    </script>
+	
 	
 	
 	
@@ -276,7 +410,7 @@
 		var mesh	= new THREE.Mesh( geometry, material );
 		//mesh.position.z	= geometry.parameters.height/2
 		//the position of the XYZ using NFT is NOT the center of the marker, is the left-bottom corner
-		mesh.position.z = 3.0;
+		mesh.position.z = 0.0;
 		mesh.position.x = 150;
 		mesh.position.y = 150;
 		scene.add( mesh );
@@ -298,6 +432,16 @@
 
 		var averaging = {x:[],y:[],z:[], max:20};
 		var countfoundHiro = 0;
+		
+		function newScene(averaging) {
+		  //code
+		  //document.getElementById("dino").setAttribute('position',{x:0.0, y: -averaging.z.reduce((a,b)=>{return a+b})/averaging.max, z: -averaging.y.reduce((a,b)=>{return a+b})/averaging.max/10})
+		  //with the mobiel, z webar == z/10 ar.js; y webar = y/10 ar.js
+		  //document.getElementById("dino").setAttribute('position',{x:0.0, y: averaging.y.reduce((a,b)=>{return a+b})/averaging.max/20, z: averaging.z.reduce((a,b)=>{return a+b})/averaging.max/9})
+		  document.getElementById("dino").setAttribute('position',{x:0.0, y: .60, z: -1.})
+		  
+		}
+		
 
 		// update artoolkit on every frame
 		onRenderFcts.push(function(){
@@ -341,7 +485,13 @@
 			  camera.position.z = averaging.z.reduce((a,b)=>{return a+b})/averaging.max;
 			  //console.log("camera position after: ", camera.position);
 			  document.getElementById('p2').innerHTML = "cam-x: "+String(camera.position.x).slice(0,4) + "; ave-y: "+String(camera.position.y).slice(0,4) + "; ave-z: "+String(camera.position.z).slice(0,4)+ " - (sample size: "+averaging.max+")"
-
+			  countfoundHiro += 1;
+			  if (countfoundHiro > 20) {
+				document.getElementById('ascene').style.display = "block";
+				arToolkitSource.domElement.hidden = true;
+				newScene(averaging);
+				arToolkitSource.ready = false;				
+			  }
 			}
 
 			
@@ -406,6 +556,8 @@
 				onRenderFct(deltaMsec/1000, nowMsec/1000)
 			})
 		})
+		
+		
 		
 		////////////////////////////////////////////////
 		/////////////////// OTHER EXTRAS ///////////////
