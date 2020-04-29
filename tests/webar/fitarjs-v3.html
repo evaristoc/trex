@@ -316,9 +316,24 @@
 		display: none;
 	  }
 	  
-	  /*.a-enter-ar-button{
-		display: none;
-	  }*/
+	  .arjs-loader {
+		height: 100%;
+		width: 100%;
+		position: absolute;
+		top: 0;
+		left: 0;
+		background-color: rgba(0, 0, 0, 0.8);
+		z-index: 9999;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+	  }
+	
+	  .arjs-loader div {
+		text-align: center;
+		font-size: 1.25em;
+		color: white;
+	  }
   
 	  .message{
 		position: absolute;
@@ -337,6 +352,10 @@
 </meta>
 
 <body style='margin : 0px; overflow: hidden; font-family: Monospace;'>
+  <!-- minimal loader shown until image descriptors are loaded. Loading may take a while according to the device computational power -->
+	  <div class="arjs-loader">
+		<div>Loading, please wait...</div>
+	  </div>
 	<!-- LOG AREA -->
 	<div id="log" style="background-color:orange; color:white; font-weight: bold; width:200px; z-index:100;">
 	    <p id="modified"></p>
