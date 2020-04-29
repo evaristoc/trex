@@ -85,6 +85,9 @@
 		display: none;
 	  }
 	  
+	  .a-enter-ar-button{
+		display: none;
+	  }
   
 	  .message{
 		position: absolute;
@@ -182,7 +185,7 @@
 		//document.getElementById("modified").textContent = lastModifiedDate;
 		
 		
-		document.getElementsByClassName("a-enter-ar-button")[0].style.display = "none";
+		//document.getElementsByClassName("a-enter-ar-button")[0].style.display = "none";
 		// init renderer
 		var renderer	= new THREE.WebGLRenderer({
 			antialias: true,
@@ -391,7 +394,7 @@
 	
 		// render the scene
 		onRenderFcts.push(function(){
-			renderer.render( scene, camera );
+			renderer.render( scene_AR, camera );
 		})
 	
 		// run the rendering loop
