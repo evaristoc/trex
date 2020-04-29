@@ -305,6 +305,7 @@
           //  if (this.wasVisible) this.el.setAttribute('visible', true);
           //});
 		  this.el.sceneEl.addEventListener('enter-ar', (ev) => {
+			  alert(111, artks);
 			  if (this.el.sceneEl.is('ar-mode')) {
 				this.el.setAttribute('visible', false);
 			    //scene_ARjs.remove(arToolkitContext._arMarkersControls[0].object3d);
@@ -342,7 +343,9 @@
             if (!this.wasVisible) this.el.setAttribute('visible', false);
           });
         }
-      });    
+      });
+	  
+	  //xr="ar: true; vr: false;"
   </script>
 
   <style>
@@ -403,7 +406,6 @@
 		  <a-camera position="0.0 0.0 0.0"></a-camera>
 
 		  <a-entity id="dino" position="0 0 0" rotation="0 0 0" >
-			xr="ar: true; vr: false;"
 			<a-entity id="placeholder" position="0 1.15 -0.3" 
                   rotation="0 80 0"
                   scale="0.03 0.03 0.03"
