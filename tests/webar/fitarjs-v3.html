@@ -27,19 +27,19 @@
     <script src="https://unpkg.com/aframe-environment-component@1.1.0/dist/aframe-environment-component.min.js"></script>
 
     <script>
-		var artks;
  		window.onload = (event) => {
 			  //console.log('page is fully loaded');
-				//console.log(document.getElementsByTagName("button")[1]);
-				//alert("Para usar el mode AR de WebXR, use un telefono Android/iOS compatible con arCore con Chrome v79+ y autorize el uso del modulo WebAR en chrome://flags.")
+			  //console.log(document.querySelector("a-scene.a-enter-vr"), document.querySelector(".a-enter-vr"))
+			  //var sceneEl = document.querySelector('a-scene');
+			  //console.log(sceneEl.querySelectorAll('canvas'));
+				
 				//////////////////////////////////////////////////////////////////////////////////
 				//		Init ARJS!!
 				//////////////////////////////////////////////////////////////////////////////////
 				
 				const lastModifiedDate = new Date(document.lastModified);
 				//document.getElementById("modified").textContent = lastModifiedDate;
-				
-				
+
 				//document.getElementsByClassName("a-enter-ar-button")[0].style.display = "none";
 				// init renderer
 				var renderer	= new THREE.WebGLRenderer({
@@ -262,13 +262,7 @@
 				// run the rendering loop
 				var lastTimeMsec= null
 				requestAnimationFrame(function animate(nowMsec){
-					console.log(window);
-					//arToolkitSource = null;
-					//arToolkitContext = null;
-					//markerControls = null;
-					//console.log(window.Worker)
-					//console.log(111)
-					return
+
 				    
 					// keep looping
 					requestAnimationFrame( animate );
@@ -286,37 +280,7 @@
       // Define a few custom components useful for AR mode. While these are somewhat reusable,
       // I recommend checking if there are officially supported alternatives before copying
       // these into new projects.
-    
-      // See also https://github.com/aframevr/aframe/pull/4356
-      AFRAME.registerComponent('hide-in-ar-mode', {
-        // Set this object invisible while in AR mode.
-        init: function () {
-		  
-		  //console.log('arToolkitSource', atks);
-		  
-          this.el.sceneEl.addEventListener('enter-vr', (ev) => {
-			
-            //this.wasVisible = this.el.getAttribute('visible');
-            //if (this.el.sceneEl.is('ar-mode')) {
-            //  this.el.setAttribute('visible', false);
-            //}
-          });
-          //this.el.sceneEl.addEventListener('exit-vr', (ev) => {
-          //  if (this.wasVisible) this.el.setAttribute('visible', true);
-          //});
-		  this.el.sceneEl.addEventListener('enter-ar', (ev) => {
-			  alert(111, artks);
-			  if (this.el.sceneEl.is('ar-mode')) {
-				this.el.setAttribute('visible', false);
-			    //scene_ARjs.remove(arToolkitContext._arMarkersControls[0].object3d);
-			    alert(111, artks);
-				artks.ready = false;
-			  }
 
-		  })
-        }
-      });
-      
       AFRAME.registerComponent('ar-shadows', {
         // Swap an object's material to a transparent shadows-only material while
         // in AR mode. Intended for use with a ground plane. The object is also
@@ -344,7 +308,7 @@
           });
         }
       });
-	  
+
 	  //xr="ar: true; vr: false;"
   </script>
 
@@ -391,8 +355,8 @@
         <div class="arjs-loader-spinner"></div>
     </div>-->
 
-	<div id="ascene">
-		<!--<a-scene renderer="antialias: true" vr-mode-ui="enterVRButton: enterARButton: #myEnterARButton">
+	
+		<!--<div id="ascene"><a-scene renderer="antialias: true" vr-mode-ui="enterVRButton: enterARButton: #myEnterARButton">
 		  <button type="submit" id="myEnterARButton" href="#" style="font-size: larger; margin-left:100px;">AR</button>
 		  <a id="myEnterARButton" href="#">AR</a>-->
 		<a-scene renderer="antialias: true">
@@ -428,21 +392,27 @@
 			 position="-5 3 1.5"></a-light>
 		 </a-scene>
 		<div id="text">
-		  
-		  <div class="message" id="message1">
+		  <div class="message" id="message1" style="z-index:1000;">
+			<p>Para usar el modo AR de WebXR, use un telefono Android/iOS compatible con arCore con Chrome v79+ y autorize el uso del modulo WebAR en chrome://flags.</p>
+			<button onclick="empezar()" style="background-color:red; color:white">Entrar a la session</button>
+		  </div>		  
+		  <div class="message" id="message2" hidden>
 			Paso 1: Coloque el producto sobre la mesa (aprox. 70cm al piso) y acerque su aparato a la etiqueta.
 		  </div>
-		  <div class="message" id="message2" hidden>
+		  <div class="message" id="message3" hidden>
 			Paso 2: El aparato consiguió la marca!! Ahora puede iniciar la sesión de AR mientras mantiene el aparato en esta posición.
 		  </div>
 
 		</div>
-	</div>
+	<!--</div>-->
 
+<script>
+  function empezar(){
+	document.getElementById("message1").remove();
+	document.getElementById("message2").hidden = false;
+  }
+</script>
+
+      
 	
-	<script>
-		
-		
-
-	</script>
 </body>
