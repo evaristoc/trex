@@ -36,6 +36,7 @@
         // Set this object invisible while in AR mode.
         init: function () {
           this.el.sceneEl.addEventListener('enter-vr', (ev) => {
+			console.log('arToolkitSource', arToolkitSource)
             //this.wasVisible = this.el.getAttribute('visible');
             //if (this.el.sceneEl.is('ar-mode')) {
             //  this.el.setAttribute('visible', false);
@@ -45,6 +46,9 @@
           //  if (this.wasVisible) this.el.setAttribute('visible', true);
           //});
 		  this.el.sceneEl.addEventListener('enter-ar', (ev) => {
+			  if (this.el.sceneEl.is('ar-mode')) {
+				this.el.setAttribute('visible', false);
+			  }
 			  scene_ARjs.remove(arToolkitContext._arMarkersControls[0].object3d);
 			  arToolkitSource.ready = false;
 		  })
@@ -81,13 +85,13 @@
   </script>
 
   <style>
-	  .a-enter-vr{
+	  /*.a-enter-vr{
 		display: none;
 	  }
 	  
 	  .a-enter-ar-button{
 		display: none;
-	  }
+	  }*/
   
 	  .message{
 		position: absolute;
@@ -137,7 +141,7 @@
 
 		  <a-camera position="0.0 0.0 0.0"></a-camera>
 
-		  <a-entity id="dino" position="0 0 0" rotation="0 0 0">
+		  <a-entity id="dino" position="0 0 0" rotation="0 0 0" xr="ar: true; vr: false;">
 			<a-entity id="placeholder" position="0 1.15 -0.3" 
                   rotation="0 80 0"
                   scale="0.03 0.03 0.03"
@@ -175,8 +179,12 @@
 	<script>
 		
 		
+		window.onload = (event) => {
+			  //console.log('page is fully loaded');
+			  //console.log(document.getElementsByTagName("button")[0]);
+		  };
 		
-		alert("Para usar el mode AR de WebXR, use un telefono Android/iOS compatible con arCore con Chrome v79+ y autorize el uso del modulo WebAR en chrome://flags.")
+		//alert("Para usar el mode AR de WebXR, use un telefono Android/iOS compatible con arCore con Chrome v79+ y autorize el uso del modulo WebAR en chrome://flags.")
 		//////////////////////////////////////////////////////////////////////////////////
 		//		Init ARJS!!
 		//////////////////////////////////////////////////////////////////////////////////
@@ -394,7 +402,7 @@
 	
 		// render the scene
 		onRenderFcts.push(function(){
-			renderer.render( scene_AR, camera );
+			renderer.render( scene_ARjs, camera );
 		})
 	
 		// run the rendering loop
