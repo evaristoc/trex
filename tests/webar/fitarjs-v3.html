@@ -247,7 +247,10 @@
 				requestAnimationFrame(function animate(nowMsec){
 					if (foundHiro) {
 					  //code
-					  scene_ARjs.remove(arToolkitContext._arMarkersControls[0].object3d);
+					  //scene_ARjs.remove(arToolkitContext._arMarkersControls[0].object3d);
+					  arToolkitContext._arMarkersControls[0].object3d.geometry.dispose();
+					  arToolkitContext._arMarkersControls[0].object3d.material.dispose();
+					  scene.remove( arToolkitContext._arMarkersControls[0].object3d );
 					  renderer.renderLists.dispose();
 					  return;
 					}
