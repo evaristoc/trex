@@ -27,6 +27,262 @@
     <script src="https://unpkg.com/aframe-environment-component@1.1.0/dist/aframe-environment-component.min.js"></script>
 
     <script>
+		var artks;
+ 		window.onload = (event) => {
+			  //console.log('page is fully loaded');
+				//console.log(document.getElementsByTagName("button")[1]);
+				//alert("Para usar el mode AR de WebXR, use un telefono Android/iOS compatible con arCore con Chrome v79+ y autorize el uso del modulo WebAR en chrome://flags.")
+				//////////////////////////////////////////////////////////////////////////////////
+				//		Init ARJS!!
+				//////////////////////////////////////////////////////////////////////////////////
+				
+				const lastModifiedDate = new Date(document.lastModified);
+				//document.getElementById("modified").textContent = lastModifiedDate;
+				
+				
+				//document.getElementsByClassName("a-enter-ar-button")[0].style.display = "none";
+				// init renderer
+				var renderer	= new THREE.WebGLRenderer({
+					antialias: true,
+					alpha: true,
+					precision: 'mediump',
+				});
+				renderer.setClearColor(new THREE.Color('lightgrey'), 0)
+				renderer.setSize( 640, 480 );
+				//renderer.setSize( 320, 240 );
+				renderer.domElement.style.position = 'absolute'
+				renderer.domElement.style.top = '0px'
+				renderer.domElement.style.left = '0px'
+				document.getElementById("arjs").appendChild( renderer.domElement );
+			
+				// array of functions for the rendering loop
+				var onRenderFcts= [];
+			
+				// init scene and camera
+				var scene_ARjs = new THREE.Scene();
+			
+				//////////////////////////////////////////////////////////////////////////////////
+				//		Initialize a basic camera
+				//////////////////////////////////////////////////////////////////////////////////
+			
+				// Create a camera
+				var camera = new THREE.Camera();
+				
+				scene_ARjs.add(camera);
+				
+				
+			
+				////////////////////////////////////////////////////////////////////////////////
+				//          handle arToolkitSource
+				////////////////////////////////////////////////////////////////////////////////
+			
+				var arToolkitSource = new THREEx.ArToolkitSource({
+					// to read from the webcam
+					sourceType : 'webcam',
+		
+				})
+			
+				arToolkitSource.init(function onReady(){
+					// open a the dev console
+					artks = arToolkitSource;
+					console.log('artks', artks);
+					setTimeout(() => {
+						onResize()
+					}, 2000);
+				})
+				
+				
+				
+				// handle resize
+				window.addEventListener('resize', function(){
+					onResize()
+				})
+				
+				
+			
+				function onResize(){
+					arToolkitSource.onResizeElement()
+					arToolkitSource.copyElementSizeTo(renderer.domElement)
+					if( arToolkitContext.arController !== null ){
+						arToolkitSource.copyElementSizeTo(arToolkitContext.arController.canvas)
+					}
+				}
+				////////////////////////////////////////////////////////////////////////////////
+				//          initialize arToolkitContext
+				////////////////////////////////////////////////////////////////////////////////
+			
+			
+				// create atToolkitContext
+				var arToolkitContext = new THREEx.ArToolkitContext({
+					detectionMode: 'mono',
+					
+					//required in the new format; no settings in THREEx ArTookitContext separately
+					canvasWidth: 480,
+					canvasHeight: 640,
+				}, {
+					sourceWidth: 480,
+					sourceHeight: 640,
+				})
+				// initialize it
+				arToolkitContext.init(function onCompleted(){
+					// copy projection matrix to camera
+					camera.projectionMatrix.copy( arToolkitContext.getProjectionMatrix() );
+				})
+			
+		
+				////////////////////////////////////////////////////////////////////////////////
+				//          Create a ArMarkerControls
+				////////////////////////////////////////////////////////////////////////////////
+			
+				// init controls for camera
+				var markerControls = new THREEx.ArMarkerControls(arToolkitContext, camera, {
+					type: 'nft',
+					descriptorsUrl:'https://arjs-cors-proxy.herokuapp.com/https://raw.githack.com/AR-js-org/AR.js/master/aframe/examples/image-tracking/nft/trex/trex-image/trex',
+					// as we controls the camera, set changeMatrixMode: 'cameraTransformMatrix'
+					changeMatrixMode: 'cameraTransformMatrix'
+				})
+		
+				////////////////////////////////////////////////
+				/////////////////// OBJ TEST //////////////////
+				////////////////////////////////////////////////
+		
+			
+				// add a torus knot
+				var geometry	= new THREE.CubeGeometry(300,300,10);
+				var material	= new THREE.MeshNormalMaterial({
+					transparent : true,
+					opacity: 0.5,
+					side: THREE.DoubleSide
+				});
+				var mesh	= new THREE.Mesh( geometry, material );
+				mesh.position.z = 0.0;
+				mesh.position.x = 150;
+				mesh.position.y = 150;
+				scene_ARjs.add( mesh );
+			
+				var geometry	= new THREE.TorusKnotGeometry(0.3,0.1,64,16);
+				var material	= new THREE.MeshNormalMaterial();
+				var mesh	= new THREE.Mesh( geometry, material );
+				mesh.position.z	= 0.5
+				//scene_ARjs.add( mesh );
+			
+				onRenderFcts.push(function(delta){
+					mesh.rotation.x += Math.PI*delta
+				})
+				
+				//ARjs = null;
+				
+				////////////////////////////////////////////////
+				/////////////////// ANIMATION //////////////////
+				////////////////////////////////////////////////
+		
+				var averaging = {x:[],y:[],z:[], max:20};
+				var countfoundHiro = 0;
+				
+				function newScene(averaging) {
+			  
+				}
+				
+		
+				// update artoolkit on every frame
+				onRenderFcts.push(function(){
+					
+					
+					if( arToolkitSource.ready === false ){
+						//document.getElementsByTagName('video').hidden = "false";
+						return
+					}
+					
+					/*COLLECTING VALUES*/
+					//console.log("camera position before: ", camera.position);
+					//document.getElementById('p1').innerHTML = "x: "+String(camera.position.x).slice(0,4) + "; y: "+String(camera.position.y).slice(0,4) + "; z: "+String(camera.position.z).slice(0,4)
+					if (Math.abs(camera.position.x) <= 20 & Math.abs(camera.position.y) <= 20  & Math.abs(camera.position.z) <= 20 ) {
+					  //code
+					  averaging.x.push(camera.position.x);
+					  averaging.y.push(camera.position.y);
+					  averaging.z.push(camera.position.z);
+					}
+		
+					averaging.x.push(camera.position.x/1000);
+					averaging.y.push(camera.position.y/1000);
+					averaging.z.push(camera.position.z/1500);
+					
+					if (averaging.x.length > averaging.max ) {
+						//code
+						averaging.x.shift(0);
+					};
+					if (averaging.y.length > averaging.max ) {
+						//code
+						averaging.y.shift(0);
+					};
+					if (averaging.z.length > averaging.max ) {
+						//code
+						averaging.z.shift(0);
+					}
+					
+					if (arToolkitContext._arMarkersControls[0].object3d.visible){
+					  camera.position.x = averaging.x.reduce((a,b)=>{return a+b})/averaging.max + 2 + 250;
+					  camera.position.y = averaging.y.reduce((a,b)=>{return a+b})/averaging.max + 250;
+					  camera.position.z = averaging.z.reduce((a,b)=>{return a+b})/averaging.max;
+					  //console.log("camera position after: ", camera.position);
+					  //document.getElementById('p2').innerHTML = "cam-x: "+String(camera.position.x).slice(0,4) + "; ave-y: "+String(camera.position.y).slice(0,4) + "; ave-z: "+String(camera.position.z).slice(0,4)+ " - (sample size: "+averaging.max+")"
+					  countfoundHiro += 1;
+					  if (countfoundHiro > 20) {
+						
+						document.getElementById('ascene').style.display = "block";
+						document.getElementsByClassName("a-enter-ar-button")[0].style.display = "block";
+						document.getElementById('message1').hidden = true;
+						document.getElementById('message2').hidden = false;
+						
+						//document.getElementById('ascene').hidden = true;
+						//arToolkitSource.domElement.hidden = true;
+						//arToolkitSource.ready = false;				
+						newScene(averaging);
+					  }
+					}
+		
+			
+					arToolkitContext.update( arToolkitSource.domElement )
+					
+					// update scene_ARjs.visible if the marker is seen
+					scene_ARjs.visible = camera.visible
+				})
+			
+		
+			
+				//////////////////////////////////////////////////////////////////////////////////
+				//		render the whole thing on the page
+				//////////////////////////////////////////////////////////////////////////////////
+			
+				// render the scene
+				onRenderFcts.push(function(){
+					renderer.render( scene_ARjs, camera );
+				})
+			
+				// run the rendering loop
+				var lastTimeMsec= null
+				requestAnimationFrame(function animate(nowMsec){
+					console.log(window);
+					//arToolkitSource = null;
+					//arToolkitContext = null;
+					//markerControls = null;
+					//console.log(window.Worker)
+					//console.log(111)
+					return
+				    
+					// keep looping
+					requestAnimationFrame( animate );
+					// measure time
+					lastTimeMsec	= lastTimeMsec || nowMsec-1000/60
+					var deltaMsec	= Math.min(200, nowMsec - lastTimeMsec)
+					lastTimeMsec	= nowMsec
+					// call each update function
+					onRenderFcts.forEach(function(onRenderFct){
+						onRenderFct(deltaMsec/1000, nowMsec/1000)
+					})
+				});
+		  };
+
       // Define a few custom components useful for AR mode. While these are somewhat reusable,
       // I recommend checking if there are officially supported alternatives before copying
       // these into new projects.
@@ -35,8 +291,11 @@
       AFRAME.registerComponent('hide-in-ar-mode', {
         // Set this object invisible while in AR mode.
         init: function () {
+		  
+		  //console.log('arToolkitSource', atks);
+		  
           this.el.sceneEl.addEventListener('enter-vr', (ev) => {
-			console.log('arToolkitSource', arToolkitSource)
+			
             //this.wasVisible = this.el.getAttribute('visible');
             //if (this.el.sceneEl.is('ar-mode')) {
             //  this.el.setAttribute('visible', false);
@@ -48,9 +307,11 @@
 		  this.el.sceneEl.addEventListener('enter-ar', (ev) => {
 			  if (this.el.sceneEl.is('ar-mode')) {
 				this.el.setAttribute('visible', false);
+			    //scene_ARjs.remove(arToolkitContext._arMarkersControls[0].object3d);
+			    alert(111, artks);
+				artks.ready = false;
 			  }
-			  scene_ARjs.remove(arToolkitContext._arMarkersControls[0].object3d);
-			  arToolkitSource.ready = false;
+
 		  })
         }
       });
@@ -85,11 +346,11 @@
   </script>
 
   <style>
-	  /*.a-enter-vr{
+	  .a-enter-vr{
 		display: none;
 	  }
 	  
-	  .a-enter-ar-button{
+	  /*.a-enter-ar-button{
 		display: none;
 	  }*/
   
@@ -141,7 +402,8 @@
 
 		  <a-camera position="0.0 0.0 0.0"></a-camera>
 
-		  <a-entity id="dino" position="0 0 0" rotation="0 0 0" xr="ar: true; vr: false;">
+		  <a-entity id="dino" position="0 0 0" rotation="0 0 0" >
+			xr="ar: true; vr: false;"
 			<a-entity id="placeholder" position="0 1.15 -0.3" 
                   rotation="0 80 0"
                   scale="0.03 0.03 0.03"
@@ -179,245 +441,6 @@
 	<script>
 		
 		
-		window.onload = (event) => {
-			  //console.log('page is fully loaded');
-			  //console.log(document.getElementsByTagName("button")[0]);
-		  };
-		
-		//alert("Para usar el mode AR de WebXR, use un telefono Android/iOS compatible con arCore con Chrome v79+ y autorize el uso del modulo WebAR en chrome://flags.")
-		//////////////////////////////////////////////////////////////////////////////////
-		//		Init ARJS!!
-		//////////////////////////////////////////////////////////////////////////////////
-		
-		const lastModifiedDate = new Date(document.lastModified);
-		//document.getElementById("modified").textContent = lastModifiedDate;
-		
-		
-		//document.getElementsByClassName("a-enter-ar-button")[0].style.display = "none";
-		// init renderer
-		var renderer	= new THREE.WebGLRenderer({
-			antialias: true,
-			alpha: true,
-			precision: 'mediump',
-		});
-		renderer.setClearColor(new THREE.Color('lightgrey'), 0)
-		renderer.setSize( 640, 480 );
-		//renderer.setSize( 320, 240 );
-		renderer.domElement.style.position = 'absolute'
-		renderer.domElement.style.top = '0px'
-		renderer.domElement.style.left = '0px'
-		document.getElementById("arjs").appendChild( renderer.domElement );
-	
-		// array of functions for the rendering loop
-		var onRenderFcts= [];
-	
-		// init scene and camera
-		var scene_ARjs = new THREE.Scene();
-	
-		//////////////////////////////////////////////////////////////////////////////////
-		//		Initialize a basic camera
-		//////////////////////////////////////////////////////////////////////////////////
-	
-		// Create a camera
-		var camera = new THREE.Camera();
-		
-		scene_ARjs.add(camera);
-		
-		
-	
-		////////////////////////////////////////////////////////////////////////////////
-		//          handle arToolkitSource
-		////////////////////////////////////////////////////////////////////////////////
-	
-		var arToolkitSource = new THREEx.ArToolkitSource({
-			// to read from the webcam
-			sourceType : 'webcam',
 
-		})
-	
-		arToolkitSource.init(function onReady(){
-			// open a the dev console
-			setTimeout(() => {
-				onResize()
-			}, 2000);
-		})
-		
-		// handle resize
-		window.addEventListener('resize', function(){
-			onResize()
-		})
-	
-		function onResize(){
-			arToolkitSource.onResizeElement()
-			arToolkitSource.copyElementSizeTo(renderer.domElement)
-			if( arToolkitContext.arController !== null ){
-				arToolkitSource.copyElementSizeTo(arToolkitContext.arController.canvas)
-			}
-		}
-		////////////////////////////////////////////////////////////////////////////////
-		//          initialize arToolkitContext
-		////////////////////////////////////////////////////////////////////////////////
-	
-	
-		// create atToolkitContext
-		var arToolkitContext = new THREEx.ArToolkitContext({
-			detectionMode: 'mono',
-			
-			//required in the new format; no settings in THREEx ArTookitContext separately
-			canvasWidth: 480,
-            canvasHeight: 640,
-        }, {
-            sourceWidth: 480,
-            sourceHeight: 640,
-		})
-		// initialize it
-		arToolkitContext.init(function onCompleted(){
-			// copy projection matrix to camera
-			camera.projectionMatrix.copy( arToolkitContext.getProjectionMatrix() );
-		})
-	
-
-		////////////////////////////////////////////////////////////////////////////////
-		//          Create a ArMarkerControls
-		////////////////////////////////////////////////////////////////////////////////
-	
-		// init controls for camera
-		var markerControls = new THREEx.ArMarkerControls(arToolkitContext, camera, {
-			type: 'nft',
-			descriptorsUrl:'https://arjs-cors-proxy.herokuapp.com/https://raw.githack.com/AR-js-org/AR.js/master/aframe/examples/image-tracking/nft/trex/trex-image/trex',
-			// as we controls the camera, set changeMatrixMode: 'cameraTransformMatrix'
-			changeMatrixMode: 'cameraTransformMatrix'
-		})
-
-		////////////////////////////////////////////////
-		/////////////////// OBJ TEST //////////////////
-		////////////////////////////////////////////////
-
-	
-		// add a torus knot
-		var geometry	= new THREE.CubeGeometry(300,300,10);
-		var material	= new THREE.MeshNormalMaterial({
-			transparent : true,
-			opacity: 0.5,
-			side: THREE.DoubleSide
-		});
-		var mesh	= new THREE.Mesh( geometry, material );
-		mesh.position.z = 0.0;
-		mesh.position.x = 150;
-		mesh.position.y = 150;
-		scene_ARjs.add( mesh );
-	
-		var geometry	= new THREE.TorusKnotGeometry(0.3,0.1,64,16);
-		var material	= new THREE.MeshNormalMaterial();
-		var mesh	= new THREE.Mesh( geometry, material );
-		mesh.position.z	= 0.5
-		//scene_ARjs.add( mesh );
-	
-		onRenderFcts.push(function(delta){
-			mesh.rotation.x += Math.PI*delta
-		})
-		
-		
-		////////////////////////////////////////////////
-		/////////////////// ANIMATION //////////////////
-		////////////////////////////////////////////////
-
-		var averaging = {x:[],y:[],z:[], max:20};
-		var countfoundHiro = 0;
-		
-		function newScene(averaging) {
-	  
-		}
-		
-
-		// update artoolkit on every frame
-		onRenderFcts.push(function(){
-			
-			
-			if( arToolkitSource.ready === false ){
-				//document.getElementsByTagName('video').hidden = "false";
-				return
-			}
-			
-			/*COLLECTING VALUES*/
-			//console.log("camera position before: ", camera.position);
-			//document.getElementById('p1').innerHTML = "x: "+String(camera.position.x).slice(0,4) + "; y: "+String(camera.position.y).slice(0,4) + "; z: "+String(camera.position.z).slice(0,4)
-			if (Math.abs(camera.position.x) <= 20 & Math.abs(camera.position.y) <= 20  & Math.abs(camera.position.z) <= 20 ) {
-			  //code
-			  averaging.x.push(camera.position.x);
-			  averaging.y.push(camera.position.y);
-			  averaging.z.push(camera.position.z);
-			}
-
-			averaging.x.push(camera.position.x/1000);
-			averaging.y.push(camera.position.y/1000);
-			averaging.z.push(camera.position.z/1500);
-			
-			if (averaging.x.length > averaging.max ) {
-				//code
-				averaging.x.shift(0);
-			};
-			if (averaging.y.length > averaging.max ) {
-				//code
-				averaging.y.shift(0);
-			};
-			if (averaging.z.length > averaging.max ) {
-				//code
-				averaging.z.shift(0);
-			}
-			
-			if (arToolkitContext._arMarkersControls[0].object3d.visible){
-			  camera.position.x = averaging.x.reduce((a,b)=>{return a+b})/averaging.max + 2 + 250;
-			  camera.position.y = averaging.y.reduce((a,b)=>{return a+b})/averaging.max + 250;
-			  camera.position.z = averaging.z.reduce((a,b)=>{return a+b})/averaging.max;
-			  //console.log("camera position after: ", camera.position);
-			  //document.getElementById('p2').innerHTML = "cam-x: "+String(camera.position.x).slice(0,4) + "; ave-y: "+String(camera.position.y).slice(0,4) + "; ave-z: "+String(camera.position.z).slice(0,4)+ " - (sample size: "+averaging.max+")"
-			  countfoundHiro += 1;
-			  if (countfoundHiro > 20) {
-				
-				document.getElementById('ascene').style.display = "block";
-				document.getElementsByClassName("a-enter-ar-button")[0].style.display = "block";
-				document.getElementById('message1').hidden = true;
-				document.getElementById('message2').hidden = false;
-				
-				//document.getElementById('ascene').hidden = true;
-				//arToolkitSource.domElement.hidden = true;
-				//arToolkitSource.ready = false;				
-				newScene(averaging);
-			  }
-			}
-
-	
-			arToolkitContext.update( arToolkitSource.domElement )
-			
-			// update scene_ARjs.visible if the marker is seen
-			scene_ARjs.visible = camera.visible
-		})
-	
-
-	
-		//////////////////////////////////////////////////////////////////////////////////
-		//		render the whole thing on the page
-		//////////////////////////////////////////////////////////////////////////////////
-	
-		// render the scene
-		onRenderFcts.push(function(){
-			renderer.render( scene_ARjs, camera );
-		})
-	
-		// run the rendering loop
-		var lastTimeMsec= null
-		requestAnimationFrame(function animate(nowMsec){
-			// keep looping
-			requestAnimationFrame( animate );
-			// measure time
-			lastTimeMsec	= lastTimeMsec || nowMsec-1000/60
-			var deltaMsec	= Math.min(200, nowMsec - lastTimeMsec)
-			lastTimeMsec	= nowMsec
-			// call each update function
-			onRenderFcts.forEach(function(onRenderFct){
-				onRenderFct(deltaMsec/1000, nowMsec/1000)
-			})
-		})
 	</script>
 </body>
