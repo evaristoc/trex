@@ -135,7 +135,7 @@
 		  <a-camera position="0.0 0.0 0.0"></a-camera>
 
 		  <a-entity id="dino" position="0 0 0" rotation="0 0 0">
-			<a-entity position="0 1.15 -0.3" 
+			<a-entity id="placeholder" position="0 1.15 -0.3" 
                   rotation="0 80 0"
                   scale="0.03 0.03 0.03"
                   gltf-model="#spinosaurus"
@@ -182,7 +182,7 @@
 		//document.getElementById("modified").textContent = lastModifiedDate;
 		
 		
-		document.getElementsByClassName("a-enter-ar-button").disabled = true;
+		document.getElementsByClassName("a-enter-ar-button").style.display = "none";
 		// init renderer
 		var renderer	= new THREE.WebGLRenderer({
 			antialias: true,
@@ -365,7 +365,7 @@
 			  if (countfoundHiro > 20) {
 				
 				document.getElementById('ascene').style.display = "block";
-				document.getElementsByClassName("a-enter-ar-button").disabled = false;
+				document.getElementsByClassName("a-enter-ar-button").style.display = "block";
 				document.getElementById('message1').hidden = true;
 				document.getElementById('message2').hidden = false;
 				
