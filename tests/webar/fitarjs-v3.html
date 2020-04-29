@@ -241,28 +241,41 @@
 				onRenderFcts.push(function(){
 					if (foundHiro) {
 					  //code	
-					  //https://github.com/mrdoob/three.js/pull/12464#issuecomment-518616514
-					  for (const key in geometry.attributes) {
-							geometry.removeAttribute(key);
-						}
-					  geometry.setIndex([]);
-					  geometry.dispose();					  
+					//  //https://github.com/mrdoob/three.js/pull/12464#issuecomment-518616514
+					//  for (const key in geometry.attributes) {
+					//		geometry.removeAttribute(key);
+					//	}
+					//  geometry.setIndex([]);
+					//  geometry.dispose();					  
 					  //https://discourse.threejs.org/t/correctly-remove-mesh-from-scene-and-dispose-material-and-geometry/5448/6
-					  arToolkitContext._arMarkersControls[0].object3d.geometry.dispose();
-					  arToolkitContext._arMarkersControls[0].object3d.material.dispose();
-					  scene.remove( arToolkitContext._arMarkersControls[0].object3d );
+					  arToolkitContext._arMarkersControls[0].object3d.visible = false;
+					  //arToolkitContext._arMarkersControls[0].object3d.geometry.dispose();
+					  //arToolkitContext._arMarkersControls[0].object3d.material.dispose();
+					  //scene_ARjs.remove( arToolkitContext._arMarkersControls[0].object3d );
+					  geometry.dispose();
+					  material.dispose();
+					  scene_ARjs.remove(mesh);
 					  renderer.renderLists.dispose();
-					  return;
+					  //arToolkitSource = null;
+					  scene_ARjs = new THREE.Scene();
+					  renderer.render( scene_ARjs, camera );
 					}else{
 					  renderer.render( scene_ARjs, camera );  
-					}
+					}  
 					
 				})
 			
 				// run the rendering loop
 				var lastTimeMsec= null
 				requestAnimationFrame(function animate(nowMsec){
-				    
+					if (arToolkitSource === null) {
+					  scene_ARjs.remove( arToolkitContext._arMarkersControls[0].object3d );
+					  ////code
+					  //markerControls = null;
+					  //arToolkitContext = null;
+					  //renderer = null;
+					  //return;
+					}
 					// keep looping
 					requestAnimationFrame( animate );
 					// measure time
@@ -272,6 +285,9 @@
 					// call each update function
 					onRenderFcts.forEach(function(onRenderFct){
 						onRenderFct(deltaMsec/1000, nowMsec/1000)
+						if (foundHiro) {
+						  //code
+						}
 					})
 				});
 		  };
