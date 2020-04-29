@@ -36,14 +36,14 @@
         // Set this object invisible while in AR mode.
         init: function () {
           this.el.sceneEl.addEventListener('enter-vr', (ev) => {
-            this.wasVisible = this.el.getAttribute('visible');
-            if (this.el.sceneEl.is('ar-mode')) {
-              this.el.setAttribute('visible', false);
-            }
+            //this.wasVisible = this.el.getAttribute('visible');
+            //if (this.el.sceneEl.is('ar-mode')) {
+            //  this.el.setAttribute('visible', false);
+            //}
           });
-          this.el.sceneEl.addEventListener('exit-vr', (ev) => {
-            if (this.wasVisible) this.el.setAttribute('visible', true);
-          });
+          //this.el.sceneEl.addEventListener('exit-vr', (ev) => {
+          //  if (this.wasVisible) this.el.setAttribute('visible', true);
+          //});
         }
       });
       
@@ -120,8 +120,8 @@
 		height: 240px !important;*/
 	}
 	#ascene {
-		display:none;
-		/*height: 300px;
+		/*display:none;
+		height: 300px;
 		width: 600px;*/
 	}
   </style>
@@ -147,7 +147,8 @@
     </div>-->
 
 	<div id="ascene">
-		<a-scene renderer="antialias: true">
+		<a-scene renderer="antialias: true" vr-mode-ui="enterVRButton: enterARButton: #myEnterARButton">
+		  <a id="myEnterARButton" href="#">AR</a>
 		  <a-assets timeout="30000">
 			<!-- Model source: https://sketchfab.com/3d-models/spinosaurus-2135501583704537907645bf723685e7
 				 Model author: https://sketchfab.com/VapTor
