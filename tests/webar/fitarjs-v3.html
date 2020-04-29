@@ -182,7 +182,7 @@
 		//document.getElementById("modified").textContent = lastModifiedDate;
 		
 		
-		document.getElementsByClassName("a-enter-ar-button").style.display = "none";
+		document.getElementsByClassName("a-enter-ar-button")[0].style.display = "none";
 		// init renderer
 		var renderer	= new THREE.WebGLRenderer({
 			antialias: true,
@@ -365,7 +365,7 @@
 			  if (countfoundHiro > 20) {
 				
 				document.getElementById('ascene').style.display = "block";
-				document.getElementsByClassName("a-enter-ar-button").style.display = "block";
+				document.getElementsByClassName("a-enter-ar-button")[0].style.display = "block";
 				document.getElementById('message1').hidden = true;
 				document.getElementById('message2').hidden = false;
 				
