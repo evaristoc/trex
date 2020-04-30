@@ -169,7 +169,7 @@
 				var foundHiro = false;
 
 				onRenderFcts.push(function(){
-						console.log("In");
+						//console.log("In");
 						/*COLLECTING VALUES*/
 						//console.log("camera position before: ", camera.position);
 						//document.getElementById('p1').innerHTML = "x: "+String(camera.position.x).slice(0,4) + "; y: "+String(camera.position.y).slice(0,4) + "; z: "+String(camera.position.z).slice(0,4)
@@ -292,10 +292,11 @@
 					onRenderFcts.forEach(function(onRenderFct){
 						
 						//requestAnimationFrame( null );
+						onRenderFct(deltaMsec/1000, nowMsec/1000);
 
 						if (foundHiro) {
 						  //code
-						  onRenderFct(deltaMsec/1000, nowMsec/1000);
+						  //onRenderFct(deltaMsec/1000, nowMsec/1000);
 						}
 					})
 				});
