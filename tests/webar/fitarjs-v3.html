@@ -8,7 +8,8 @@
 	<script src="../../arjs-resources/threex/threex-artoolkitcontext.js"></script>-->
 	<!-- ar.js -->
 	<script src='../../arjs@v3-resources/three.js/build/ar-nft.js'></script>
-
+	<!-- kalman filter -->
+    <script src="https://cdn.jsdelivr.net/npm/kalmanjs@1.1.0/lib/kalman.min.js"></script>
     <script>
       // WebXR requires HTTPS, so the site doesn't work if someone manually enters
       // the URL and ends up using HTTP. To work around this, force redirect from
@@ -40,6 +41,12 @@
 				const lastModifiedDate = new Date(document.lastModified);
 				//document.getElementById("modified").textContent = lastModifiedDate;
 
+				//Kalman filter: R extern; Q: intern
+				//https://www.wouterbulten.nl/blog/tech/lightweight-javascript-library-for-noise-filtering/
+				var kf1x = new KalmanFilter({R: 5, Q: 50}); //camera position
+				var kf1y = new KalmanFilter({R: 5, Q: 50}); //camera position
+				var kf1z = new KalmanFilter({R: 10, Q: 100}); //camera position
+				var kf2 = new KalmanFilter({R: .01, Q: 4}); //resolution
 				//document.getElementsByClassName("a-enter-ar-button")[0].style.display = "none";
 				// init renderer
 				var renderer	= new THREE.WebGLRenderer({
@@ -154,8 +161,8 @@
 				});
 				var mesh	= new THREE.Mesh( geometry, material );
 				mesh.position.z = 0.0;
-				mesh.position.x = 150;
-				mesh.position.y = 150;
+				mesh.position.x = 200;
+				mesh.position.y = 200;
 				scene_ARjs.add( mesh );
 
 			
@@ -164,7 +171,9 @@
 				/////////////////// ANIMATION //////////////////
 				////////////////////////////////////////////////
 		
-				var averaging = {x:[],y:[],z:[], max:20};
+				var averaging = {x:[],y:[],z:[], max:25};
+				var countfoundHiroList = [0];
+				var samplesize = 30;
 				var countfoundHiro = 0;
 				var foundHiro = false;
 
@@ -184,6 +193,9 @@
 						averaging.x.push(camera.position.x/1000);
 						averaging.y.push(camera.position.y/1000);
 						averaging.z.push(camera.position.z/1500);
+						var camx = kf1x.filter(camera.position.x/1000);
+						var camy = kf1y.filter(camera.position.y/1000);
+						var camz = kf1z.filter(camera.position.z/1500);
 						
 						if (averaging.x.length > averaging.max ) {
 							//code
@@ -198,22 +210,54 @@
 							averaging.z.shift(0);
 						}
 						
+						//moving average
+						camera.position.x = averaging.x.reduce((a,b)=>{return a+b})/averaging.max + 2 + 250;
+						camera.position.y = averaging.y.reduce((a,b)=>{return a+b})/averaging.max + 250;
+						camera.position.z = averaging.z.reduce((a,b)=>{return a+b})/averaging.max;
+						
+						//kalmar filter
+						//console.log(camx, camy, camz);
+						camera.position.x = camx;
+						camera.position.y = camy;
+						camera.position.z = camz;
+						
 						if (arToolkitContext._arMarkersControls[0].object3d.visible){
-						  camera.position.x = averaging.x.reduce((a,b)=>{return a+b})/averaging.max + 2 + 250;
-						  camera.position.y = averaging.y.reduce((a,b)=>{return a+b})/averaging.max + 250;
-						  camera.position.z = averaging.z.reduce((a,b)=>{return a+b})/averaging.max;
 						  //console.log("camera position after: ", camera.position);
 						  //document.getElementById('p2').innerHTML = "cam-x: "+String(camera.position.x).slice(0,4) + "; ave-y: "+String(camera.position.y).slice(0,4) + "; ave-z: "+String(camera.position.z).slice(0,4)+ " - (sample size: "+averaging.max+")"
-						  countfoundHiro += 1;
-						  if (countfoundHiro > 50) {
-							document.getElementById('message2').hidden = true;
-							document.getElementById('message3').hidden = false;
+						  countfoundHiroList.push(true);
+						} else {
+						  countfoundHiroList.push(false); 
+						};
+						
+						if (countfoundHiroList.length > samplesize) {
+						  //code
+						  countfoundHiroList.shift(0);
+						}
+						
+						  
+				
+						if ( countfoundHiroList.length <= samplesize ) {
+						  //code
+						  let hirofoundsaver = countfoundHiroList.reduce((a,b)=>{return a+b})/samplesize
+						  if (hirofoundsaver > .3) { //resolution
+							  //code
+							  arToolkitContext._arMarkersControls[0].object3d.visible = true;
+							  countfoundHiro += 1
+						  } else {
+							  //arToolkitContext._arMarkersControls[0].object3d.visible = false;
+							  countfoundHiro = 0;
+						  }
+						}
+						if (countfoundHiro > 10) { //a stacking approach!!!
+							//document.getElementById('message2').hidden = true;
+							//document.getElementById('message3').hidden = false;
 							foundHiro = true;
 							//document.getElementById('ascene').hidden = true;
 							//arToolkitSource.domElement.hidden = true;
-							//arToolkitSource.ready = false;				
-						  }
-						}  
+							//arToolkitSource.ready = false;
+						}
+						
+						//foundHiro = true;
 				})				
 				
 				
@@ -250,23 +294,24 @@
 					//  geometry.setIndex([]);
 					//  geometry.dispose();					  
 					  //https://discourse.threejs.org/t/correctly-remove-mesh-from-scene-and-dispose-material-and-geometry/5448/6
-					  arToolkitContext._arMarkersControls[0].object3d.visible = false;
+					  //arToolkitContext._arMarkersControls[0].object3d.visible = false;
 					  //arToolkitContext._arMarkersControls[0].object3d.geometry.dispose();
 					  //arToolkitContext._arMarkersControls[0].object3d.material.dispose();
 					  //scene_ARjs.remove( arToolkitContext._arMarkersControls[0].object3d );
-					  geometry.dispose();
-					  material.dispose();
-					  scene_ARjs.remove(mesh);
-					  renderer.renderLists.dispose();
+					  //geometry.dispose();
+					  //material.dispose();
+					  //scene_ARjs.remove(mesh);
+					  //renderer.renderLists.dispose();
 					  //arToolkitSource = null;
-					  scene_ARjs = new THREE.Scene();
-					  if (document.querySelector("#myEnterARButton").disabled) {
+					  //scene_ARjs = new THREE.Scene();
+					  //if (document.querySelector("#myEnterARButton").disabled) {
 						//code
-						document.querySelector("#myEnterARButton").disabled = false;
-					  };
+						//document.querySelector("#myEnterARButton").disabled = false;
+					  //};
 					  renderer.render( scene_ARjs, camera );
 					}else{
-					  renderer.render( scene_ARjs, camera );  
+					  renderer.render( scene_ARjs, camera );
+					  //return
 					}  
 					
 				})
