@@ -248,7 +248,7 @@
 							  countfoundHiro = 0;
 						  }
 						}
-						if (countfoundHiro > 300) { //a stacking approach!!!
+						if (countfoundHiro > 100) { //a stacking approach!!!
 							foundHiro = true;
 							//document.getElementById('ascene').hidden = true;
 							//arToolkitSource.domElement.hidden = true;
@@ -584,14 +584,22 @@
 		 </a-scene>
 		<div id="text">
 		  <div class="message" id="message1" style="z-index:1000;">
-			<p>Para usar el modo AR de WebXR, use un telefono Android/iOS compatible con arCore con Chrome v79+ y autorize el uso del modulo WebAR en chrome://flags.</p>
-			<button onclick="empezar()" style="background-color:red; color:white">Entrar a la session</button>
+			<!--<p>Para usar el modo AR de WebXR, use un telefono Android/iOS compatible con arCore con Chrome v79+ y autorize el uso del modulo WebAR en chrome://flags.</p>
+			<button onclick="empezar()" style="background-color:red; color:white">Entrar a la session</button>-->
+			<p>To try WebXR's experimental AR mode, use an <a href="https://developers.google.com/ar/discover/supported-devices">ARCore-compatible</a>Android phone with Chrome v79+ and enable <b>WebXR AR Module</b> in chrome://flags.</p>
+			<button onclick="empezar()" style="background-color:red; color:white">ENTER</button>
 		  </div>		  
-		  <div class="message" id="message2" hidden>
+		 <!-- <div class="message" id="message2" hidden>
 			Paso 1: Coloque el producto sobre la mesa (aprox. 70cm al piso) y acerque su aparato a la etiqueta.
+		  </div>-->
+		 <div class="message" id="message2" hidden>
+			STEP 1: Let the image approx. 70cm over the floor and hold the device close to it until you can see a blue plane.
 		  </div>
-		  <div class="message" id="message3" hidden>
+		  <!-- <div class="message" id="message3" hidden>
 			Paso 2: El aparato consiguio la marca!! Ahora Utd. puede iniciar la sesion de AR; trate si de mantener el aparato en esta posicion.
+		  </div>-->
+		  <div class="message" id="message3" hidden>
+			STEP 2: Now that your device has found the image, try to keep the device in that position when starting the augmented session by clicking the AR button. ENJOY!
 		  </div>
 		  <div class="a-enter-ar"><button class="a-enter-ar-button" id="myEnterARButton" href="#" title="Enter AR mode with a headset or handheld device. Visit https://webvr.rocks or https://webvr.info for more information." disabled></button></div>
 		</div>
