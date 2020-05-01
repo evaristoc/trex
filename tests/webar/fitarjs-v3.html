@@ -248,9 +248,7 @@
 							  countfoundHiro = 0;
 						  }
 						}
-						if (countfoundHiro > 10) { //a stacking approach!!!
-							//document.getElementById('message2').hidden = true;
-							//document.getElementById('message3').hidden = false;
+						if (countfoundHiro > 300) { //a stacking approach!!!
 							foundHiro = true;
 							//document.getElementById('ascene').hidden = true;
 							//arToolkitSource.domElement.hidden = true;
@@ -308,7 +306,9 @@
 						//code
 						document.querySelector("#myEnterARButton").disabled = false;
 					  };
-					  //arToolkitSource = null;
+					  document.getElementById('message2').hidden = true;
+					  document.getElementById('message3').hidden = false;
+					  arToolkitSource = null;
 					  renderer.render( scene_ARjs, camera );
 					}else{
 					  renderer.render( scene_ARjs, camera );
