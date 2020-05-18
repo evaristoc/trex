@@ -157,7 +157,7 @@
 		
 			
 				// add a torus knot
-				var geometry	= new THREE.CubeGeometry(300,300,10);
+				var geometry	= new THREE.CubeGeometry(300,300,200);
 				var material	= new THREE.MeshNormalMaterial({
 					transparent : true,
 					opacity: 0.5,
@@ -182,11 +182,6 @@
 				var foundHiro = false;
 
 				onRenderFcts.push(function(){
-						//console.log("In");
-						/*COLLECTING VALUES*/
-						//console.log("camera position before: ", camera.position);
-						//document.getElementById('p1').innerHTML = "x: "+String(camera.position.x).slice(0,4) + "; y: "+String(camera.position.y).slice(0,4) + "; z: "+String(camera.position.z).slice(0,4)
-						//console.log(document.querySelector("#myEnterARButton"));
 						if (Math.abs(camera.position.x) <= 20 & Math.abs(camera.position.y) <= 20  & Math.abs(camera.position.z) <= 20 ) {
 						  //code
 						  averaging.x.push(camera.position.x);
@@ -214,17 +209,29 @@
 							averaging.z.shift(0);
 						}
 						
+						//plain
+						camera.position.x = camera.position.x/1000 + 2 + 250;;
+						camera.position.y = camera.position.y/1000 + 250;
+						camera.position.z = camera.position.z/1500;						
 						//moving average
 						camera.position.x = averaging.x.reduce((a,b)=>{return a+b})/averaging.max + 2 + 250;
 						camera.position.y = averaging.y.reduce((a,b)=>{return a+b})/averaging.max + 250;
 						camera.position.z = averaging.z.reduce((a,b)=>{return a+b})/averaging.max;
+
+						var camxPma = kf1x.filter(averaging.x.reduce((a,b)=>{return a+b})/averaging.max + 2 + 250);
+						var camyPma = kf1y.filter(averaging.y.reduce((a,b)=>{return a+b})/averaging.max + 250);
+						var camzPma = kf1z.filter(averaging.z.reduce((a,b)=>{return a+b})/averaging.max);
 						
 						//kalmar filter
 						//console.log(camx, camy, camz);
 						camera.position.x = camx;
 						camera.position.y = camy;
 						camera.position.z = camz;
-						
+						camera.position.x = camxPma;
+						camera.position.y = camyPma;
+						camera.position.z = camzPma;						
+
+
 						if (arToolkitContext._arMarkersControls[0].object3d.visible){
 						  //console.log("camera position after: ", camera.position);
 						  //document.getElementById('p2').innerHTML = "cam-x: "+String(camera.position.x).slice(0,4) + "; ave-y: "+String(camera.position.y).slice(0,4) + "; ave-z: "+String(camera.position.z).slice(0,4)+ " - (sample size: "+averaging.max+")"
@@ -287,38 +294,8 @@
 				
 				// render the scene
 				onRenderFcts.push(function(){
-					if (foundHiro) {
-					  ////code	
-					  ////https://github.com/mrdoob/three.js/pull/12464#issuecomment-518616514
-					  //  for (const key in geometry.attributes) {
-					  //		geometry.removeAttribute(key);
-					  //	}
-					  //  geometry.setIndex([]);
-					  //  geometry.dispose();					  
-					  ////https://discourse.threejs.org/t/correctly-remove-mesh-from-scene-and-dispose-material-and-geometry/5448/6
-					  //arToolkitContext._arMarkersControls[0].object3d.visible = false;
-					  //arToolkitContext._arMarkersControls[0].object3d.geometry.dispose();
-					  //arToolkitContext._arMarkersControls[0].object3d.material.dispose();
-					  //scene_ARjs.remove( arToolkitContext._arMarkersControls[0].object3d );
-					  //geometry.dispose();
-					  //material.dispose();
-					  //arToolkitContext._arMarkersControls[0].object3d.visible = false;
-					  scene_ARjs.remove(mesh);
-					  renderer.renderLists.dispose();
-					  scene_ARjs = new THREE.Scene();
-					  if (document.querySelector("#myEnterARButton").disabled) {
-						//code
-						document.querySelector("#myEnterARButton").disabled = false;
-					  };
-					  document.getElementById('message2').hidden = true;
-					  document.getElementById('message3').hidden = false;
-					  arToolkitSource = null;
-					  renderer.render( scene_ARjs, camera );
-					}else{
-					  renderer.render( scene_ARjs, camera );
-					  //return
-					}  
-					
+                                  
+						renderer.render( scene_ARjs, camera );
 				})
 
 	
@@ -362,260 +339,12 @@
 			  }
 				
 		  };
-
-      // Define a few custom components useful for AR mode. While these are somewhat reusable,
-      // I recommend checking if there are officially supported alternatives before copying
-      // these into new projects.
-
-      AFRAME.registerComponent('ar-shadows', {
-        // Swap an object's material to a transparent shadows-only material while
-        // in AR mode. Intended for use with a ground plane. The object is also
-        // set visible while in AR mode, this is useful if it's hidden in other
-        // modes due to them using a 3D environment.
-        schema: {
-          opacity: {default: 0.3}
-        },
-        init: function () {
-          this.el.sceneEl.addEventListener('enter-vr', (ev) => {
-            this.wasVisible = this.el.getAttribute('visible');
-            if (this.el.sceneEl.is('ar-mode')) {
-              this.savedMaterial = this.el.object3D.children[0].material;
-              this.el.object3D.children[0].material = new THREE.ShadowMaterial();
-              this.el.object3D.children[0].material.opacity = this.data.opacity;
-              this.el.setAttribute('visible', true);
-            }
-          });
-          this.el.sceneEl.addEventListener('exit-vr', (ev) => {
-            if (this.savedMaterial) {
-              this.el.object3D.children[0].material = this.savedMaterial;
-              this.savedMaterial = null;
-            }
-            if (!this.wasVisible) this.el.setAttribute('visible', false);
-          });
-        }
-      });
-
-	  //xr="ar: true; vr: false;"
   </script>
-
-  <style>
-	  .a-enter-vr{
-		display: none;
-	  }
-	  
-	  .arjs-loader {
-		height: 100%;
-		width: 100%;
-		position: absolute;
-		top: 0;
-		left: 0;
-		background-color: rgba(0, 0, 0, 0.8);
-		z-index: 9999;
-		display: flex;
-		justify-content: center;
-		align-items: center;
-	  }
-	
-	  .arjs-loader div {
-		text-align: center;
-		font-size: 1.25em;
-		color: white;
-	  }
-  
-	  .message{
-		position: absolute;
-		bottom: 10%;
-		left: 50%;
-		transform: translate(-50%, -50%);
-		width: 300px;
-		border: solid 5px steelblue;
-		background-color: silver;
-		color: brown;
-		font-size: 15px;
-	  }
-	  
-	  .a-enter-ar {
-		right: 80px;
-	  }
-	  
-	  .a-enter-ar {
-		display: block;
-		font-family: sans-serif,monospace;
-		font-size: 13px;
-		width: 100%;
-		font-weight: 200;
-		line-height: 16px;
-		position: absolute;
-		right: 20px;
-		bottom: 20px;
-	  }
-
-	/*.a-enter-ar-button {*/
-	  #myEnterARButton{
-		background-size: 100% 90%;
-		margin-right: 10px;
-		border-radius: 7px;
-	}
-	
-	
-	/*.a-enter-ar-button {*/
-	  #myEnterARButton{
-		background-size: 90% 90%;
-		border: 0;
-		bottom: 0;
-		cursor: pointer;
-		min-width: 58px;
-		min-height: 34px;
-		padding-right: 0;
-		padding-top: 0;
-		position: absolute;
-		right: 0;
-		transition: background-color .05s ease;
-		-webkit-transition: background-color .05s ease;
-		z-index: 9999;
-		border-radius: 8px;
-		touch-action: manipulation;
-	}
-	
-
-	/*.a-enter-ar-button {*/
-	#myEnterARButton{
-	  background: url(data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='108' height='62' viewBox='0 0 108 62'%3E%3Ctitle%3Eaframe-armode-noborder-reduced-tracking%3C/title%3E%3Cpath d='M96,0H12A12,12,0,0,0,0,12V50A12,12,0,0,0,12,62H96a12,12,0,0,0,12-12V12A12,12,0,0,0,96,0Zm8,50a8,8,0,0,1-8,8H12a8,8,0,0,1-8-8V12a8,8,0,0,1,8-8H96a8,8,0,0,1,8,8Z' fill='%23fff'/%3E%3Cpath d='M43.35,39.82H32.51L30.45,46H23.88L35,16h5.73L52,46H45.43Zm-9.17-5h7.5L37.91,23.58Z' fill='%23fff'/%3E%3Cpath d='M68.11,35H63.18V46H57V16H68.15q5.31,0,8.2,2.37a8.18,8.18,0,0,1,2.88,6.7,9.22,9.22,0,0,1-1.33,5.12,9.09,9.09,0,0,1-4,3.26l6.49,12.26V46H73.73Zm-4.93-5h5a5.09,5.09,0,0,0,3.6-1.18,4.21,4.21,0,0,0,1.28-3.27,4.56,4.56,0,0,0-1.2-3.34A5,5,0,0,0,68.15,21h-5Z' fill='%23fff'/%3E%3C/svg%3E) 50% 50% no-repeat rgba(0,0,0,.2);
-	}
-
-
-  user agent stylesheet
-  button {
-	  -webkit-appearance: button;
-	  -webkit-writing-mode: horizontal-tb !important;
-	  text-rendering: auto;
-	  color: buttontext;
-	  /*color: #8db1ab !important;
-	  color: #707070 !important;
-	  */
-	  color: blue !important;
-	  letter-spacing: normal;
-	  word-spacing: normal;
-	  text-transform: none;
-	  text-indent: 0px;
-	  text-shadow: none;
-	  display: inline-block;
-	  text-align: center;
-	  align-items: flex-start;
-	  cursor: default;
-	  background-color: buttonface;
-	  box-sizing: border-box;
-	  margin: 0em;
-	  font: 400 13.3333px Arial;
-	  padding: 1px 6px;
-	  border-width: 2px;
-	  border-style: outset;
-	  border-color: buttonface;
-	  border-image: initial;
-  }
-
-   #myEnterARButton:disabled {
-	background-color: rgba(220,220,220,.4);
-  }
-  
-  #myEnterARButton:disabled:hover {
-	background-color: black;
-	cursor: default;
-  }
-  
-  
-  </style>
-
 </meta>
 
 <body style='margin : 0px; overflow: hidden; font-family: Monospace;'>
-  <!-- minimal loader shown until image descriptors are loaded. Loading may take a while according to the device computational power -->
-	  <div class="arjs-loader">
-		<div>Loading, please wait...</div>
-	  </div>
-	<!-- LOG AREA -->
-	<div id="log" style="background-color:orange; color:white; font-weight: bold; width:200px; z-index:100;">
-	    <p id="modified"></p>
-		<p id="p1"></p>
-		<p id="p2"></p>
-		<p id="p3"></p>
-		<p id="p4"></p>
-		<p id="p5"></p>
-	</div>
 	<!-- AR.JS SECTION -->
 	<div id="arjs" style='position: absolute; top: 10px; width:100%; text-align: center; z-index: 1;'>
 	  </br>
 	</div>
-	<!--<div class="arjs-loader">
-        <div class="arjs-loader-spinner"></div>
-    </div>-->
-
-	
-		<!--<div id="ascene"><a-scene renderer="antialias: true" vr-mode-ui="enterVRButton: enterARButton: #myEnterARButton">
-		  <button type="submit" id="myEnterARButton" href="#" style="font-size: larger; margin-left:100px;">AR</button>
-		  <a id="myEnterARButton" href="#">AR</a>-->
-		<a-scene renderer="antialias: true" vr-mode-ui="enterARButton: #myEnterARButton">
-		  <a-assets timeout="30000">
-			<!-- Model source: https://sketchfab.com/3d-models/spinosaurus-2135501583704537907645bf723685e7
-				 Model author: https://sketchfab.com/VapTor
-				 Model license: CC Attribution -->
-			<a-asset-item id="spinosaurus" src="https://cdn.glitch.com/324a5290-5aa7-4efc-92d6-ae0736433b12%2Fspinosaurus.glb" response-type="arraybuffer"></a-asset-item>
-		  </a-assets>
-
-		  <a-camera position="0.0 0.0 0.0"></a-camera>
-
-		  <a-entity id="dino" position="0 0 0" rotation="0 0 0" >
-			<a-entity id="placeholder" position="0 1.15 -0.3" 
-                  rotation="0 80 0"
-                  scale="0.03 0.03 0.03"
-                  gltf-model="#spinosaurus"
-                  animation-mixer
-                  shadow="cast: true; receive: false">
-		  </a-entity>
-		  </a-entity>
-		  <a-entity light="type: ambient; intensity: 0.5;"></a-entity>
-		  <a-light type="directional"
-			 light="castShadow: true;
-					shadowMapHeight: 1024;
-					shadowMapWidth: 1024;
-					shadowCameraLeft: -7;
-					shadowCameraRight: 5;
-					shadowCameraBottom: -5;
-					shadowCameraTop: 5;"
-			 id="light"
-			 target="testbox"
-			 position="-5 3 1.5"></a-light>
-		 </a-scene>
-		<div id="text">
-		  <div class="message" id="message1" style="z-index:1000;">
-			<!--<p>Para usar el modo AR de WebXR, use un telefono Android/iOS compatible con arCore con Chrome v79+ y autorize el uso del modulo WebAR en chrome://flags.</p>
-			<button onclick="empezar()" style="background-color:red; color:white">Entrar a la session</button>-->
-			<p>To try WebXR's experimental AR mode, use an <a href="https://developers.google.com/ar/discover/supported-devices">ARCore-compatible</a>Android phone with Chrome v79+ and enable <b>WebXR AR Module</b> in chrome://flags.</p>
-			<button onclick="empezar()" style="background-color:red; color:white">ENTER</button>
-		  </div>		  
-		 <!-- <div class="message" id="message2" hidden>
-			Paso 1: Coloque el producto sobre la mesa (aprox. 70cm al piso) y acerque su aparato a la etiqueta.
-		  </div>-->
-		 <div class="message" id="message2" hidden>
-			STEP 1: Let the image approx. 70cm over the floor and hold the device close to it until you can see a blue plane.
-		  </div>
-		  <!-- <div class="message" id="message3" hidden>
-			Paso 2: El aparato consiguio la marca!! Ahora Utd. puede iniciar la sesion de AR; trate si de mantener el aparato en esta posicion.
-		  </div>-->
-		  <div class="message" id="message3" hidden>
-			STEP 2: Now that your device has found the image, try to keep the device in that position when starting the augmented session by clicking the AR button. ENJOY!
-		  </div>
-		  <div class="a-enter-ar"><button class="a-enter-ar-button" id="myEnterARButton" href="#" title="Enter AR mode with a headset or handheld device. Visit https://webvr.rocks or https://webvr.info for more information." disabled></button></div>
-		</div>
-	<!--</div> class="a-enter-ar-button" -->
-
-<script>
-  function empezar(){
-	document.getElementById("message1").remove();
-	document.getElementById("message2").hidden = false;
-  }
-</script>
-
-      
-	
 </body>
