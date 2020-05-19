@@ -305,13 +305,13 @@
 						
 						var rSs = []
 						
-						console.log(arToolkitContext._arMarkersControls[0].object3d.matrix.elements.forEach((v, i)=>{
-							console.log(i, v);
+						arToolkitContext._arMarkersControls[0].object3d.matrix.elements.forEach((v, i)=>{
+							//console.log(i, v);
 							rS("action"+(i+1)).set(v);
 							//console.log(rS(i).value);
 							//rS(i).end();
 							//rS.update();
-						}));
+						});
 						//rS.set()
 						
 						if (Math.abs(camera.position.x) <= 20 & Math.abs(camera.position.y) <= 20  & Math.abs(camera.position.z) <= 20 ) {
@@ -354,43 +354,60 @@
 						//nc.datafunc = datafunc1.bind(camera);
 						
 
-						console.log(555, filterval);	
-						
-						if (filterval == -1) {
+						//console.log(555, filterval);	
+						//about the camera position... https://discourse.threejs.org/t/camera-lookat-position-changes-as-i-moved-camera-position/8563
+						//camera.position.x = 10000;
+						//camera.position.y = 10000;
+						//camera.position.z = 10000;
+						if (filterval === -1) {
 							//code
 							//functionality test
 							console.log("none");
-							camera.position.x = 100;
-							camera.position.y = 100;
-							camera.position.z = 100;
-							console.log(camera.position);
-							
-						}else if (filterval == 0) {
+							console.log(111, camera.position);
+							camera.position.x = 10000;
+							camera.position.y = 10000;
+							camera.position.z = 10000;
+							camera.position.x += 10000 - camera.position.x;
+							camera.position.y += 10000 - camera.position.y;
+							camera.position.z += 10000 - camera.position.z;
+							console.log(markerControls);
+							//camera.position.set(10000, 10000, 10000);
+							console.log(222, camera.position);
+						}else if (filterval === 0) {
 							//code
 							//plain
 							console.log("plain");
+							console.log(111, camera.position);
 							camera.position.x = camera.position.x/1000 + 2 + 250;
 							camera.position.y = camera.position.y/1000 + 250;
 							camera.position.z = camera.position.z/1500;
-						}else if (filterval == 1) {
+							camera.position.set(camera.position.x/1000 + 2 + 250, camera.position.y/1000 + 250, camera.position.z/1500);
+							console.log(222, camera.position);
+						}else if (filterval === 1) {
 							//code
 							//moving average
 							console.log("ma");
-							camera.position.x = averaging.x.reduce((a,b)=>{return a+b})/averaging.max + 2 + 250;
-							camera.position.y = averaging.y.reduce((a,b)=>{return a+b})/averaging.max + 250;
-							camera.position.z = averaging.z.reduce((a,b)=>{return a+b})/averaging.max;
-						}else if (filterval == 2) {
+							console.log(111, camera.position);
+							//camera.position.x = averaging.x.reduce((a,b)=>{return a+b})/averaging.max + 2 + 250;
+							//camera.position.y = averaging.y.reduce((a,b)=>{return a+b})/averaging.max + 250;
+							//camera.position.z = averaging.z.reduce((a,b)=>{return a+b})/averaging.max;
+							camera.position.set(averaging.x.reduce((a,b)=>{return a+b})/averaging.max + 2 + 250, averaging.y.reduce((a,b)=>{return a+b})/averaging.max + 250, averaging.z.reduce((a,b)=>{return a+b})/averaging.max);
+							console.log(222, camera.position);
+						}else if (filterval === 2) {
 							//code	
 							//kalman filters
 							console.log("kf");
+							console.log(111, camera.position);
 							//console.log(camx, camy, camz);
 							var camx = kf1x.filter(camera.position.x/1000);
 							var camy = kf1y.filter(camera.position.y/1000);
 							var camz = kf1z.filter(camera.position.z/1500);
-							camera.position.x = camx;
-							camera.position.y = camy;
-							camera.position.z = camz;
-						}else if (filterval == 3) {
+							//camera.position.x = camx;
+							//camera.position.y = camy;
+							//camera.position.z = camz;
+							camera.position.set(camx, camy, camz);
+							console.log(222, camera.position);
+						}else if (filterval === 3) {
 							//code
 							//kalman of moving averages
 							console.log("kf(ma)");
@@ -449,7 +466,9 @@
 						return
 					}
 					
-				
+				    camera.position.x += 10000 - camera.position.x;
+					camera.position.y += 10000 - camera.position.y;
+					camera.position.z += 10000 - camera.position.z;
 					arToolkitContext.update( arToolkitSource.domElement )
 					
 					// update scene_ARjs.visible if the marker is seen
@@ -465,7 +484,11 @@
 				// render the scene
 				onRenderFcts.push(function(){
 
-						
+						camera.position.x += 10000 - camera.position.x;
+						camera.position.y += 10000 - camera.position.y;
+						camera.position.z += 10000 - camera.position.z;
+						//camera.position.set(10000, 10000, 10000);
+						//camera.lookAt();
 						renderer.render( scene_ARjs, camera );
 						
 				})

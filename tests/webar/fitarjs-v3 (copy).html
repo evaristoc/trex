@@ -279,7 +279,8 @@
 						return
 					}
 					
-				
+				    camera.position.z = camera.position.z + 1000;
+					console.log(markerControls.object3d.position, arToolkitContext._arMarkersControls, scene_ARjs.children[1].rotation.y += .01);
 					arToolkitContext.update( arToolkitSource.domElement )
 					
 					// update scene_ARjs.visible if the marker is seen
