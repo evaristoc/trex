@@ -47,6 +47,10 @@
 		/*
 		https://jeromeetienne.github.io/AR.js/three.js/
 		https://docs.opencv.org/4.3.0/d9/dab/tutorial_homography.html
+		http://homepages.inf.ed.ac.uk/rbf/CVonline/LOCAL_COPIES/MARBLE/high/pose/express.htm
+		https://answers.opencv.org/question/182075/convert-pose-from-artoolkit-into-opencv-screen-coordinates/
+		http://www.hitl.washington.edu/artoolkit/mail-archive/message-thread-01895--ARToolKit--What-is-the-.html
+		https://www.statisticshowto.com/probability-and-statistics/chi-square/
 		https://github.com/artoolkitx/jsartoolkit5/issues/97
 		https://discourse.threejs.org/t/solved-how-to-update-matrices-manually/1154/3
 		https://discourse.threejs.org/t/camera-lookat-position-changes-as-i-moved-camera-position/8563
@@ -749,6 +753,7 @@
 							
 						};
 						
+						console.log(markerControls.context._artoolkitProjectionAxisTransformMatrix, markerControls.context.arController, markerControls.context._arMarkersControls[0].context._artoolkitProjectionAxisTransformMatrix);
 						//console.log(arToolkitContext.arController);
 						//console.log(arToolkitContext.arController.camera_mat, arToolkitContext.arController.transform_mat, arToolkitContext.arController.transformGL_RH);
 						//console.log(arToolkitContext.arController.getTransformationMatrix(), arToolkitContext.arController.getCameraMatrix(), arToolkitContext.arController.getMarkerTransformationMatrix());
