@@ -147,6 +147,7 @@
 					descriptorsUrl:'https://arjs-cors-proxy.herokuapp.com/https://raw.githack.com/AR-js-org/AR.js/master/aframe/examples/image-tracking/nft/trex/trex-image/trex',
 					// as we controls the camera, set changeMatrixMode: 'cameraTransformMatrix'
 					changeMatrixMode: 'cameraTransformMatrix'
+					//changeMatrixMode: 'modelViewMatrix'
 				})
 				
 				//console.log(document.querySelector("[type='text/js-worker']"))
@@ -157,7 +158,7 @@
 		
 			
 				// add a torus knot
-				var geometry	= new THREE.CubeGeometry(300,300,200);
+				var geometry	= new THREE.CubeGeometry(30,30,20);
 				var material	= new THREE.MeshNormalMaterial({
 					transparent : true,
 					opacity: 0.5,
@@ -279,7 +280,7 @@
 						return
 					}
 					
-				    camera.position.z = camera.position.z + 1000;
+				    //camera.position.z = camera.position.z + 1000;
 					console.log(markerControls.object3d.position, arToolkitContext._arMarkersControls, scene_ARjs.children[1].rotation.y += .01);
 					arToolkitContext.update( arToolkitSource.domElement )
 					

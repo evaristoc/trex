@@ -88,7 +88,7 @@
 				var customContainer = document.getElementById('stats');
 				customContainer.appendChild(gui.domElement);
 				
-				var filterval = 0;
+				var filterval = -1;
 				
 				//fnull: test
 				
@@ -137,22 +137,7 @@
 				
 				f1.close();
 				
-				//f2: moving averages
-			
-				function filter2(){
-					this.name = "moving averages";
-					this.f2 = function(){return filterval = 2;}
-				};
-				
-				var ma = new filter2();
-				
-				var f2 = gui.addFolder("ma and cutoff");
-				f2.add(ma, "name");
-				f2.add(ma, "f2");
-				
-				f2.close();
-				
-				//f3: kalman filters
+				//f2: kalman filters
 
 				//Kalman filter: R extern; Q: intern
 				//https://www.wouterbulten.nl/blog/tech/lightweight-javascript-library-for-noise-filtering/
@@ -165,33 +150,33 @@
 				var kf1yy = new KalmanFilter({R: 5, Q: 50}); //camera position
 				var kf1zz = new KalmanFilter({R: 10, Q: 100}); //camera position
 				
+				function filter2(){
+					this.name = "kalman filters";
+					this.f2 = function(){return filterval = 2;}
+				};
+				
+				var kf = new filter2(); 
+				
+				var f2 = gui.addFolder("kalman filters");
+				f2.add(kf, "name");
+				f2.add(kf, "f2");
+				
+				f2.close();
+				
+				//f3: kalman filters on moving averages
+				
 				function filter3(){
 					this.name = "kalman filters";
 					this.f3 = function(){return filterval = 3;}
 				};
 				
-				var kf = new filter3(); 
+				var kfma = new filter3(); 
 				
-				var f3 = gui.addFolder("kalman filters");
-				f3.add(kf, "name");
-				f3.add(kf, "f3");
+				var f3 = gui.addFolder("kf on ma");
+				f3.add(kfma, "name");
+				f3.add(kfma, "f3");
 				
 				f3.close();
-				
-				//f4: kalman filters on moving averages
-				
-				function filter4(){
-					this.name = "kalman filters";
-					this.f4 = function(){return filterval = 4;}
-				};
-				
-				var kfma = new filter4(); 
-				
-				var f4 = gui.addFolder("kf on ma");
-				f4.add(kfma, "name");
-				f4.add(kfma, "f4");
-				
-				f4.close();
 				
 				
 				//////////////////////////////////////////////////////////////////////////////////
@@ -233,405 +218,169 @@
 				scene_ARjs.add(camera);
 				
 				var defaultvalues = {
-					'mass': 10,
-					'macutoff': 50,
+					'mass': 5
 				}
 				
 				var calcsmatcam = {
-					'position':{
-					'camx1':0,
-					'camx2':0,
-					'camy1':0,
-					'camy2':0,
-					'camz1':0,
-					'camz2':0,
-					},
-					
-					'camlocalmat':{
-							'x1':{
-									'previous':0,
-									'current': 0,
-									'ma':{
-										'ss': defaultvalues.mass,
-										'sample': [],
-										'macalc': function(){
-											return this.sample.reduce((a,b)=>{return a+b})/this.ss
-										},
-										'result': null,
-									},
-									'coff':{
-										'cutoff': defaultvalues.macutoff,
-										'ss': defaultvalues.mass,
-										'sample': [],
-										'macalc': function(){
-											return this.sample.reduce((a,b)=>{return a+b})/this.ss
-										},
-										'cutoffcalc': function(band,signal){
-											return Math.min(band+this.cutoff, Math.max(band-this.cutoff, signal));
-										},
-										'result': null,
-									},
-								},
-							'x2':{
-									'previous':0,
-									'current': 0,
-									'ma':{
-										'ss': defaultvalues.mass,
-										'sample': [],
-										'macalc': function(){
-											return this.sample.reduce((a,b)=>{return a+b})/this.ss
-										},
-										'result': null,
-									},
-									'coff':{
-										'cutoff': defaultvalues.macutoff,
-										'ss': defaultvalues.mass,
-										'sample': [],
-										'macalc': function(){
-											return this.sample.reduce((a,b)=>{return a+b})/this.ss
-										},
-										'cutoffcalc': function(band,signal){
-											return Math.min(band+this.cutoff, Math.max(band-this.cutoff, signal));
-										},
-										'result': null,
-									},
-								},
-							'x3':{
-									'previous':0,
-									'current': 0,
-									'ma':{
-										'ss': defaultvalues.mass,
-										'sample': [],
-										'macalc': function(){
-											return this.sample.reduce((a,b)=>{return a+b})/this.ss
-										},
-										'result': null,
-									},
-									'coff':{
-										'cutoff': defaultvalues.macutoff,
-										'ss': defaultvalues.mass,
-										'sample': [],
-										'macalc': function(){
-											return this.sample.reduce((a,b)=>{return a+b})/this.ss
-										},
-										'cutoffcalc': function(band,signal){
-											return Math.min(band+this.cutoff, Math.max(band-this.cutoff, signal));
-										},
-										'result': null,
-									},
-								},
-							'x4':{
-									'previous':0,
-									'current': 0,
-									'ma':{
-										'ss': defaultvalues.mass,
-										'sample': [],
-										'macalc': function(){
-											return this.sample.reduce((a,b)=>{return a+b})/this.ss
-										},
-										'result': null,
-									},
-									'coff':{
-										'cutoff': defaultvalues.macutoff,
-										'ss': defaultvalues.mass,
-										'sample': [],
-										'macalc': function(){
-											return this.sample.reduce((a,b)=>{return a+b})/this.ss
-										},
-										'cutoffcalc': function(band,signal){
-											return Math.min(band+this.cutoff, Math.max(band-this.cutoff, signal));
-										},
-										'result': null,
-									},
-								},
-							'y1':{
-									'previous':0,
-									'current': 0,
-									'ma':{
-										'ss': defaultvalues.mass,
-										'sample': [],
-										'macalc': function(){
-											return this.sample.reduce((a,b)=>{return a+b})/this.ss
-										},
-										'result': null,
-									},
-									'coff':{
-										'cutoff': defaultvalues.macutoff,
-										'ss': defaultvalues.mass,
-										'sample': [],
-										'macalc': function(){
-											return this.sample.reduce((a,b)=>{return a+b})/this.ss
-										},
-										'cutoffcalc': function(band,signal){
-											return Math.min(band+this.cutoff, Math.max(band-this.cutoff, signal));
-										},
-										'result': null,
-									},
-								},
-							'y2':{
-									'previous':0,
-									'current': 0,
-									'ma':{
-										'ss': defaultvalues.mass,
-										'sample': [],
-										'macalc': function(){
-											return this.sample.reduce((a,b)=>{return a+b})/this.ss
-										},
-										'result': null,
-									},
-									'coff':{
-										'cutoff': defaultvalues.macutoff,
-										'ss': defaultvalues.mass,
-										'sample': [],
-										'macalc': function(){
-											return this.sample.reduce((a,b)=>{return a+b})/this.ss
-										},
-										'cutoffcalc': function(band,signal){
-											return Math.min(band+this.cutoff, Math.max(band-this.cutoff, signal));
-										},
-										'result': null,
-									},
-								},
-							'y3':{
-									'previous':0,
-									'current': 0,
-									'ma':{
-										'ss': defaultvalues.mass,
-										'sample': [],
-										'macalc': function(){
-											return this.sample.reduce((a,b)=>{return a+b})/this.ss
-										},
-										'result': null,
-									},
-									'coff':{
-										'cutoff': defaultvalues.macutoff,
-										'ss': defaultvalues.mass,
-										'sample': [],
-										'macalc': function(){
-											return this.sample.reduce((a,b)=>{return a+b})/this.ss
-										},
-										'cutoffcalc': function(band,signal){
-											return Math.min(band+this.cutoff, Math.max(band-this.cutoff, signal));
-										},
-										'result': null,
-									},
-								},
-							'y4':{
-									'previous':0,
-									'current': 0,
-									'ma':{
-										'ss': defaultvalues.mass,
-										'sample': [],
-										'macalc': function(){
-											return this.sample.reduce((a,b)=>{return a+b})/this.ss
-										},
-										'result': null,
-									},
-									'coff':{
-										'cutoff': defaultvalues.macutoff,
-										'ss': defaultvalues.mass,
-										'sample': [],
-										'macalc': function(){
-											return this.sample.reduce((a,b)=>{return a+b})/this.ss
-										},
-										'cutoffcalc': function(band,signal){
-											return Math.min(band+this.cutoff, Math.max(band-this.cutoff, signal));
-										},
-										'result': null,
-									},
-								},
-							'z1':{
-									'previous':0,
-									'current': 0,
-									'ma':{
-										'ss': defaultvalues.mass,
-										'sample': [],
-										'macalc': function(){
-											return this.sample.reduce((a,b)=>{return a+b})/this.ss
-										},
-										'result': null,
-									},
-									'coff':{
-										'cutoff': defaultvalues.macutoff,
-										'ss': defaultvalues.mass,
-										'sample': [],
-										'macalc': function(){
-											return this.sample.reduce((a,b)=>{return a+b})/this.ss
-										},
-										'cutoffcalc': function(band,signal){
-											return Math.min(band+this.cutoff, Math.max(band-this.cutoff, signal));
-										},
-										'result': null,
-									},
-								},
-							'z2':{
-									'previous':0,
-									'current': 0,
-									'ma':{
-										'ss': defaultvalues.mass,
-										'sample': [],
-										'macalc': function(){
-											return this.sample.reduce((a,b)=>{return a+b})/this.ss
-										},
-										'result': null,
-									},
-									'coff':{
-										'cutoff': defaultvalues.macutoff,
-										'ss': defaultvalues.mass,
-										'sample': [],
-										'macalc': function(){
-											return this.sample.reduce((a,b)=>{return a+b})/this.ss
-										},
-										'cutoffcalc': function(band,signal){
-											return Math.min(band+this.cutoff, Math.max(band-this.cutoff, signal));
-										},
-										'result': null,
-									},
-								},
-							'z3':{
-									'previous':0,
-									'current': 0,
-									'ma':{
-										'ss': defaultvalues.mass,
-										'sample': [],
-										'macalc': function(){
-											return this.sample.reduce((a,b)=>{return a+b})/this.ss
-										},
-										'result': null,
-									},
-									'coff':{
-										'cutoff': defaultvalues.macutoff,
-										'ss': defaultvalues.mass,
-										'sample': [],
-										'macalc': function(){
-											return this.sample.reduce((a,b)=>{return a+b})/this.ss
-										},
-										'cutoffcalc': function(band,signal){
-											return Math.min(band+this.cutoff, Math.max(band-this.cutoff, signal));
-										},
-										'result': null,
-									},
-								},
-							'z4':{
-									'previous':0,
-									'current': 0,
-									'ma':{
-										'ss': defaultvalues.mass,
-										'sample': [],
-										'macalc': function(){
-											return this.sample.reduce((a,b)=>{return a+b})/this.ss
-										},
-										'result': null,
-									},
-									'coff':{
-										'cutoff': defaultvalues.macutoff,
-										'ss': defaultvalues.mass,
-										'sample': [],
-										'macalc': function(){
-											return this.sample.reduce((a,b)=>{return a+b})/this.ss
-										},
-										'cutoffcalc': function(band,signal){
-											return Math.min(band+this.cutoff, Math.max(band-this.cutoff, signal));
-										},
-										'result': null,
-									},
-								},
-							'm1':{
-									'previous':0,
-									'current': 0,
-									'ma':{
-										'ss': defaultvalues.mass,
-										'sample': [],
-										'macalc': function(){
-											return this.sample.reduce((a,b)=>{return a+b})/this.ss
-										},
-										'result': null,
-									},
-									'coff':{
-										'cutoff': defaultvalues.macutoff,
-										'ss': defaultvalues.mass,
-										'sample': [],
-										'macalc': function(){
-											return this.sample.reduce((a,b)=>{return a+b})/this.ss
-										},
-										'cutoffcalc': function(band,signal){
-											return Math.min(band+this.cutoff, Math.max(band-this.cutoff, signal));
-										},
-										'result': null,
-									},
-								},
-							'm2':{
-									'previous':0,
-									'current': 0,
-									'ma':{
-										'ss': defaultvalues.mass,
-										'sample': [],
-										'macalc': function(){
-											return this.sample.reduce((a,b)=>{return a+b})/this.ss
-										},
-										'result': null,
-									},
-									'coff':{
-										'cutoff': defaultvalues.macutoff,
-										'ss': defaultvalues.mass,
-										'sample': [],
-										'macalc': function(){
-											return this.sample.reduce((a,b)=>{return a+b})/this.ss
-										},
-										'cutoffcalc': function(band,signal){
-											return Math.min(band+this.cutoff, Math.max(band-this.cutoff, signal));
-										},
-										'result': null,
-									},
-								},
-							'm3':{
-									'previous':0,
-									'current': 0,
-									'ma':{
-										'ss': defaultvalues.mass,
-										'sample': [],
-										'macalc': function(){
-											return this.sample.reduce((a,b)=>{return a+b})/this.ss
-										},
-										'result': null,
-									},
-									'coff':{
-										'cutoff': defaultvalues.macutoff,
-										'ss': defaultvalues.mass,
-										'sample': [],
-										'macalc': function(){
-											return this.sample.reduce((a,b)=>{return a+b})/this.ss
-										},
-										'cutoffcalc': function(band,signal){
-											return Math.min(band+this.cutoff, Math.max(band-this.cutoff, signal));
-										},
-										'result': null,
-									},
-								},
-							'm4':{
-									'previous':0,
-									'current': 0,
-									'ma':{
-										'ss': defaultvalues.mass,
-										'sample': [],
-										'macalc': function(){
-											return this.sample.reduce((a,b)=>{return a+b})/this.ss
-										},
-										'result': null,
-									},
-									'coff':{
-										'cutoff': defaultvalues.macutoff,
-										'ss': defaultvalues.mass,
-										'sample': [],
-										'macalc': function(){
-											return this.sample.reduce((a,b)=>{return a+b})/this.ss
-										},
-										'cutoffcalc': function(band,signal){
-											return Math.min(band+this.cutoff, Math.max(band-this.cutoff, signal));
-										},
-										'result': null,
-									},
+					'x1':{
+							'default': null,
+							'ma':{
+								'ss': defaultvalues.mass,
+								'sample': [],
+								'macalc': function(){
+									return this.sample.reduce((a,b)=>{return a+b})/this.ss
 								}
+							}
+						},
+					'x2':{
+							'default': null,
+							'ma':{
+								'ss': defaultvalues.mass,
+								'sample': [],
+								'macalc': function(){
+									return this.sample.reduce((a,b)=>{return a+b})/this.ss
+								}
+							}					
+						},
+					'x3':{
+							'default': null,
+							'ma':{
+								'ss': defaultvalues.mass,
+								'sample': [],
+								'macalc': function(){
+									return this.sample.reduce((a,b)=>{return a+b})/this.ss
+								}
+							}
+						},
+					'x4':{
+							'default': null,
+							'ma':{
+								'ss': defaultvalues.mass,
+								'sample': [],
+								'macalc': function(){
+									return this.sample.reduce((a,b)=>{return a+b})/this.ss
+								}
+							}						
+						},
+					'y1':{
+							'default': null,
+							'ma':{
+								'ss': defaultvalues.mass,
+								'sample': [],
+								'macalc': function(){
+									return this.sample.reduce((a,b)=>{return a+b})/this.ss
+								}
+							}
+						},
+					'y2':{
+							'default': null,
+							'ma':{
+								'ss': defaultvalues.mass,
+								'sample': [],
+								'macalc': function(){
+									return this.sample.reduce((a,b)=>{return a+b})/this.ss
+								}
+							}
+						},
+					'y3':{
+							'default': null,
+							'ma':{
+								'ss': defaultvalues.mass,
+								'sample': [],
+								'macalc': function(){
+									return this.sample.reduce((a,b)=>{return a+b})/this.ss
+								}
+							}
+						},
+					'y4':{
+							'default': null,
+							'ma':{
+								'ss': defaultvalues.mass,
+								'sample': [],
+								'macalc': function(){
+									return this.sample.reduce((a,b)=>{return a+b})/this.ss
+								}
+							}
+						},
+					'z1':{
+							'default': null,
+							'ma':{
+								'ss': defaultvalues.mass,
+								'sample': [],
+								'macalc': function(){
+									return this.sample.reduce((a,b)=>{return a+b})/this.ss
+								}
+							}
+						},
+					'z2':{
+							'default': null,
+							'ma':{
+								'ss': defaultvalues.mass,
+								'sample': [],
+								'macalc': function(){
+									return this.sample.reduce((a,b)=>{return a+b})/this.ss
+								}
+							}
+						},
+					'z3':{
+							'default': null,
+							'ma':{
+								'ss': defaultvalues.mass,
+								'sample': [],
+								'macalc': function(){
+									return this.sample.reduce((a,b)=>{return a+b})/this.ss
+								}
+							}
+						},
+					'z4':{
+							'default': null,
+							'ma':{
+								'ss': defaultvalues.mass,
+								'sample': [],
+								'macalc': function(){
+									return this.sample.reduce((a,b)=>{return a+b})/this.ss
+								}
+							}
+						},
+					'm1':{
+							'default': null,
+							'ma':{
+								'ss': defaultvalues.mass,
+								'sample': [],
+								'macalc': function(){
+									return this.sample.reduce((a,b)=>{return a+b})/this.ss
+								}
+							}
+						},
+					'm2':{
+							'default': null,
+							'ma':{
+								'ss': defaultvalues.mass,
+								'sample': [],
+								'macalc': function(){
+									return this.sample.reduce((a,b)=>{return a+b})/this.ss
+								}
+							}
+						},
+					'm3':{
+							'default': null,
+							'ma':{
+								'ss': defaultvalues.mass,
+								'sample': [],
+								'macalc': function(){
+									return this.sample.reduce((a,b)=>{return a+b})/this.ss
+								}
+							}
+						},
+					'm4':{
+							'default': null,
+							'ma':{
+								'ss': defaultvalues.mass,
+								'sample': [],
+								'macalc': function(){
+									return this.sample.reduce((a,b)=>{return a+b})/this.ss
+								}
+							}
 						}
 					};
 				
@@ -751,7 +500,7 @@
 						
 						//console.log(arToolkitContext.arController);
 						//console.log(arToolkitContext.arController.camera_mat, arToolkitContext.arController.transform_mat, arToolkitContext.arController.transformGL_RH);
-						//console.log(arToolkitContext.arController.getTransformationMatrix(), arToolkitContext.arController.getCameraMatrix(), arToolkitContext.arController.getMarkerTransformationMatrix());
+						console.log(arToolkitContext.arController.getTransformationMatrix(), arToolkitContext.arController.getCameraMatrix(), arToolkitContext.arController.getMarkerTransformationMatrix());
 						
 						var rSs = [];
 						var a = [];
@@ -761,8 +510,8 @@
 						
 						//arToolkitContext.context
 						
-						arToolkitContext._arMarkersControls[0].object3d.matrix.elements.forEach((v, i)=>{
-						//arToolkitContext._artoolkitProjectionAxisTransformMatrix.elements.forEach((v, i)=>{ //doesnt change
+						//arToolkitContext._arMarkersControls[0].object3d.matrix.elements.forEach((v, i)=>{
+						arToolkitContext._artoolkitProjectionAxisTransformMatrix.elements.forEach((v, i)=>{ //doesnt change
 							//console.log(i, v);
 							var c, r;
 							if ((i+1)%4==1) {
@@ -797,36 +546,139 @@
 								r = 4;
 							};
 						
-							
-							
-							if (calcsmatcam.camlocalmat[c+r].ma.sample.length < calcsmatcam.camlocalmat[c+r].ma.ss) {
-								//code	
-								calcsmatcam.camlocalmat[c+r].ma.sample.push(v);
-								//if (r == 4) {
-									//code
-									calcsmatcam.camlocalmat[c+r].coff.sample.push(v);
-								//}
-							}else if (calcsmatcam.camlocalmat[c+r].ma.sample.length >= calcsmatcam.camlocalmat[c+r].ma.ss) {
+							if (r == 4) {
 								//code
-								calcsmatcam.camlocalmat[c+r].ma.sample.push(v);
-								calcsmatcam.camlocalmat[c+r].ma.sample.shift(0);
-								//if (r == 4) {
+								if (c == 'm') {
 									//code
-									var cest = calcsmatcam.camlocalmat[c+r].coff.macalc();
-									var fv = calcsmatcam.camlocalmat[c+r].coff.cutoffcalc(cest, v);
-									calcsmatcam.camlocalmat[c+r].coff.sample.push(v);
-									calcsmatcam.camlocalmat[c+r].coff.sample.shift(0);
-								//}
-							};
+									a.push(1);
+								}else{
+									a.push(300);
+								}
+							}else{
+								a.push(v);
+							}
 							
-							calcsmatcam.camlocalmat[c+r].previous = calcsmatcam.camlocalmat[c+r].current;
-							calcsmatcam.camlocalmat[c+r].current = v;
-							calcsmatcam.camlocalmat[c+r].ma.result = calcsmatcam.camlocalmat[c+r].ma.macalc();
-							calcsmatcam.camlocalmat[c+r].coff.result = calcsmatcam.camlocalmat[c+r].coff.macalc();
-
-     					});
+							
+							rS(c+r).set(v);
 						
-					
+							//console.log(rS(i).value);
+							//rS(i).end();
+							//rS.update();
+						});
+						
+						//scene_ARjs.children[1].matrix.elements.forEach((v, i)=>{
+						//	//console.log(i, v);
+						//	var c, r;
+						//	if ((i+1)%4==1) {
+						//		//code
+						//		c = "x";
+						//		matelems[0].push(v);
+						//	}else if ((i+1)%4==2) {
+						//		//code
+						//		c = "y";
+						//		matelems[1].push(v);
+						//	}else if ((i+1)%4==3) {
+						//		//code
+						//		c = "z";
+						//		matelems[2].push(v);
+						//	}else if ((i+1)%4==0) {
+						//		//code
+						//		c = "m";
+						//		matelems[3].push(v);
+						//	};
+						//	
+						//	if (i <= 3) {
+						//		//code
+						//		r = 1;
+						//	}else if (i <= 7) {
+						//		//code
+						//		r = 2;
+						//	}else if (i <= 11) {
+						//		//code
+						//		r = 3;
+						//	}else if (i <= 15) {
+						//		//code
+						//		r = 4;
+						//	};
+						//
+						//	if (r == 4) {
+						//		//code
+						//		if (c == 'm') {
+						//			//code
+						//			//v = 1;
+						//			//matelems.push(v);
+						//		}else{
+						//			//v = -100;
+						//			//matelems.push(v);
+						//		}
+						//	}else{
+						//		//matelems.push(v);
+						//	}
+						//	
+						//	
+						//	rS(c+r).set(v);
+						//
+						//	//console.log(rS(i).value);
+						//	//rS(i).end();
+						//	//rS.update();
+						//});
+
+						////console.log(arToolkitContext.getProjectionMatrix().elements)
+						//arToolkitContext.getProjectionMatrix().elements.forEach((v, i)=>{
+						//	//console.log(i, v);
+						//	var c, r;
+						//	if ((i+1)%4==1) {
+						//		//code
+						//		c = "x";
+						//		matelems[0].push(v);
+						//	}else if ((i+1)%4==2) {
+						//		//code
+						//		c = "y";
+						//		matelems[1].push(v);
+						//	}else if ((i+1)%4==3) {
+						//		//code
+						//		c = "z";
+						//		matelems[2].push(v);
+						//	}else if ((i+1)%4==0) {
+						//		//code
+						//		c = "m";
+						//		matelems[3].push(v);
+						//	};
+						//	
+						//	if (i <= 3) {
+						//		//code
+						//		r = 1;
+						//	}else if (i <= 7) {
+						//		//code
+						//		r = 2;
+						//	}else if (i <= 11) {
+						//		//code
+						//		r = 3;
+						//	}else if (i <= 15) {
+						//		//code
+						//		r = 4;
+						//	};
+						//
+						//	if (r == 4) {
+						//		//code
+						//		if (c == 'm') {
+						//			//code
+						//			a.push(1);
+						//		}else{
+						//			a.push(-100);
+						//		}
+						//	}else{
+						//		a.push(v);
+						//	}
+						//	
+						//	
+						//	rS(c+r).set(v);
+						//
+						//	//console.log(rS(i).value);
+						//	//rS(i).end();
+						//	//rS.update();
+						//});
+						
 						//arToolkitContext._arMarkersControls[0].object3d.matrix.set(1,0,0,10,0,1,0,100,0,0,1,800,0,0,0,1);
 						//arToolkitContext._arMarkersControls[0].object3d.updateMatrix();
 						//arToolkitContext._arMarkersControls[0].object3d.position.set(10,100,8000);
@@ -835,7 +687,18 @@
 						//scene_ARjs.children[1].matrix.set(arToolkitContext._arMarkersControls[0].object3d.matrix.elements);
 						//mesh.scale.set(30, 30, 30);
 						//scene_ARjs.children[1].position.set(100,100,100);
-
+						
+						
+						//if (Math.abs(camera.position.x) <= 20 & Math.abs(camera.position.y) <= 20  & Math.abs(camera.position.z) <= 20 ) {
+						//  //code
+						//  averaging.x.push(camera.position.x);
+						//  averaging.y.push(camera.position.y);
+						//  averaging.z.push(camera.position.z);
+						//}
+				
+						//averaging.x.push(camera.position.x/1000);
+						//averaging.y.push(camera.position.y/1000);
+						//averaging.z.push(camera.position.z/1500);
 						averaging.x.push(camera.position.x);
 						averaging.y.push(camera.position.y);
 						averaging.z.push(camera.position.z);
@@ -854,14 +717,43 @@
 							averaging.z.shift(0);
 						}
 						
-      					if (filterval === -1) {
+						////OBS: call the function only once...
+						////nc.datafunc.bind(camera);
+						//function datafunc1(){
+						//	 var pc = this;
+						//	 console.log(333, pc);
+						//				return (function (pc){
+						//					console.log(444);
+						//					pc.position.x = pc.position.x/1000 + 2 + 250;
+						//					pc.position.y = pc.position.y/1000 + 250;
+						//					pc.position.z = pc.position.z/1500;
+						//		})(pc);
+						//};
+						//nc.datafunc = datafunc1.bind(camera);
+						
+
+						//console.log(555, filterval);	
+						//about the camera position... https://discourse.threejs.org/t/camera-lookat-position-changes-as-i-moved-camera-position/8563
+						//camera.position.x = 10000;
+						//camera.position.y = 10000;
+						//camera.position.z = 10000;
+						if (filterval === -1) {
 							//code
 							//functionality test
 							console.log("none");
 							console.log(111, camera.position);
+							camera.position.x = 10000;
+							camera.position.y = 10000;
+							camera.position.z = 10000;
+							camera.position.x += 10000 - camera.position.x;
+							camera.position.y += 10000 - camera.position.y;
+							camera.position.z += 10000 - camera.position.z;
 							var x = 10;
 							var y = 100;
 							var z = 800;
+							
+							//console.log(markerControls);
+							//camera.position.set(10000, 10000, 10000);
 							console.log(222, camera.position);
 							//arToolkitContext._arMarkersControls[0].object3d.matrix.copyPosition(1,0,0,camera.position.x,0,1,0,camera.position.y,0,0,1,camera.position.z,0,0,0,1);
 							
@@ -875,67 +767,44 @@
 							//code
 							//plain
 							console.log("plain");
-							Object.keys(calcsmatcam.camlocalmat).forEach(key => {
-								let s = (calcsmatcam.camlocalmat[key].current-calcsmatcam.camlocalmat[key].previous);
-								rS(key).set(s);
-							});
+							console.log(111, camera.position);
+							camera.position.x = camera.position.x/1000 + 2 + 250;
+							camera.position.y = camera.position.y/1000 + 250;
+							camera.position.z = camera.position.z/1500;
+							camera.position.set(camera.position.x/1000 + 2 + 250, camera.position.y/1000 + 250, camera.position.z/1500);
 							console.log(222, camera.position);
 						}else if (filterval === 1) {
 							//code
 							//moving average
 							console.log("ma");
 							console.log(111, camera.position);
-							Object.keys(calcsmatcam.camlocalmat).forEach(key => {
-								let s = (calcsmatcam.camlocalmat[key].current-calcsmatcam.camlocalmat[key].ma.result);
-								rS(key).set(s);
-							});
-							//var x = calcsmatcam['x4'].ma.result;
-							//var y = calcsmatcam['y4'].ma.result;
-							//var z = calcsmatcam['z4'].ma.result;
-							//var tm = new THREE.Matrix4().set(1, 0, 0, x,
-							//								0, 1, 0, y,
-							//								0, 0, 1, z,
-							//								0, 0, 0, 1);
-							//
-							//arToolkitContext._arMarkersControls[0].object3d.matrix.copyPosition(tm);
+							//camera.position.x = averaging.x.reduce((a,b)=>{return a+b})/averaging.max + 2 + 250;
+							//camera.position.y = averaging.y.reduce((a,b)=>{return a+b})/averaging.max + 250;
+							//camera.position.z = averaging.z.reduce((a,b)=>{return a+b})/averaging.max;
+							//camera.position.set(averaging.x.reduce((a,b)=>{return a+b})/averaging.max + 2 + 250, averaging.y.reduce((a,b)=>{return a+b})/averaging.max + 250, averaging.z.reduce((a,b)=>{return a+b})/averaging.max);
+							var x = averaging.x.reduce((a,b)=>{return a+b})/averaging.max;
+							var y = averaging.y.reduce((a,b)=>{return a+b})/averaging.max;
+							var z = averaging.z.reduce((a,b)=>{return a+b})/averaging.max;
+							var tm = new THREE.Matrix4().set(1, 0, 0, x,
+															0, 1, 0, y,
+															0, 0, 1, z,
+															0, 0, 0, 1);
+							
+							arToolkitContext._arMarkersControls[0].object3d.matrix.copyPosition(tm);
 							console.log(222, camera.position);						
 						}else if (filterval === 2) {
-							//code
-							//moving average + cutoff
-							console.log("ma+cutoff");
-							console.log(111, camera.position);
-							Object.keys(calcsmatcam.camlocalmat).forEach(key => {
-								let s = (calcsmatcam.camlocalmat[key].current-calcsmatcam.camlocalmat[key].coff.result);
-								rS(key).set(s);
-							});
-							//var x = averaging.x.reduce((a,b)=>{return a+b})/averaging.max;
-							//var y = averaging.y.reduce((a,b)=>{return a+b})/averaging.max;
-							//var z = averaging.z.reduce((a,b)=>{return a+b})/averaging.max;
-							//var tm = new THREE.Matrix4().set(1, 0, 0, x,
-							//								0, 1, 0, y,
-							//								0, 0, 1, z,
-							//								0, 0, 0, 1);
-							//
-							//arToolkitContext._arMarkersControls[0].object3d.matrix.copyPosition(tm);
-							
-							//var x = calcsmatcam['x4'].coff.result;
-							//var y = calcsmatcam['y4'].coff.result;
-							//var z = calcsmatcam['z4'].coff.result;
-							//
-							//var tm = new THREE.Matrix4().set(1, 0, 0, x,
-							//								0, 1, 0, y,
-							//								0, 0, 1, z,
-							//								0, 0, 0, 1);
-							//
-							//arToolkitContext._arMarkersControls[0].object3d.matrix.copyPosition(tm);
-							
-							
-							console.log(222, camera.position);						
-						}else if (filterval === 3) {
 							//code	
 							//kalman filters
 							console.log("kf");
 							console.log(111, camera.position);
+							//console.log(camx, camy, camz);
+							//var camx = kf1x.filter(camera.position.x/1000);
+							//var camy = kf1y.filter(camera.position.y/1000);
+							//var camz = kf1z.filter(camera.position.z/1500);
+							//camera.position.x = camx;
+							//camera.position.y = camy;
+							//camera.position.z = camz;
+							//camera.position.set(camx, camy, camz);
 							var x = kf1x.filter(camera.position.x);
 							var y = kf1y.filter(camera.position.y);
 							var z = kf1z.filter(camera.position.z);
@@ -946,10 +815,16 @@
 							
 							arToolkitContext._arMarkersControls[0].object3d.matrix.copyPosition(tm);
 							console.log(222, camera.position);
-						}else if (filterval === 4) {
+						}else if (filterval === 3) {
 							//code
 							//kalman of moving averages
 							console.log("kf(ma)");
+							//var camxPma = kf1x.filter(averaging.x.reduce((a,b)=>{return a+b})/averaging.max + 2 + 250);
+							//var camyPma = kf1y.filter(averaging.y.reduce((a,b)=>{return a+b})/averaging.max + 250);
+							//var camzPma = kf1z.filter(averaging.z.reduce((a,b)=>{return a+b})/averaging.max);
+							//camera.position.x = camxPma;
+							//camera.position.y = camyPma;
+							//camera.position.z = camzPma;
 							var x = kf1xx.filter(averaging.x.reduce((a,b)=>{return a+b})/averaging.max);
 							var y = kf1yy.filter(averaging.y.reduce((a,b)=>{return a+b})/averaging.max);
 							var z = kf1zz.filter(averaging.z.reduce((a,b)=>{return a+b})/averaging.max);
